@@ -73,6 +73,7 @@ export interface Merchant {
   categoryCode?: string;
   defaultCurrency: CurrencyCode;
   status: 'ACTIVE' | 'SUSPENDED' | 'INACTIVE';
+  merchantOfRecord: boolean; // Added for client request
   metadata?: Record<string, string>;
   createdAt: ISODateString;
   updatedAt: ISODateString;
@@ -128,6 +129,14 @@ export interface PaymentRequest {
   amount: Money;
   processor: ProcessorType;
   captureMode?: 'AUTOMATIC' | 'MANUAL';
+  splitConfig?: {
+    type: 'PLATFORM_FEE' | 'MULTI_MERCHANT';
+    beneficiaries: Array<{
+      id: string;
+      type: 'MERCHANT' | 'PLATFORM';
+      shareBps: number;
+    }>;
+  };
   customer?: {
     customerId?: string;
     email?: string;
@@ -143,6 +152,16 @@ export interface FeeBreakdown {
   totalFeeMinor: number;
 }
 
+export interface TransactionSplit {
+  id: string;
+  transactionId: string;
+  beneficiaryType: 'PLATFORM' | 'PARTNER' | 'MERCHANT' | 'PROCESSOR';
+  beneficiaryId: string;
+  amountMinor: number;
+  currency: CurrencyCode;
+  description?: string;
+}
+
 export interface Transaction {
   id: string;
   externalReference: string;
@@ -152,22 +171,13 @@ export interface Transaction {
   amount: Money;
   netAmountMinor: number;
   feeBreakdown: FeeBreakdown;
+  splits: TransactionSplit[]; // Added for visibility
   status: TransactionStatus;
   reconciliationStatus?: ReconciliationStatus;
   statusReason?: string;
   metadata?: Record<string, string>;
   createdAt: ISODateString;
   updatedAt: ISODateString;
-}
-
-export interface TransactionSplit {
-  id: string;
-  transactionId: string;
-  beneficiaryType: 'PLATFORM' | 'PARTNER' | 'MERCHANT' | 'PROCESSOR';
-  beneficiaryId: string;
-  amountMinor: number;
-  currency: CurrencyCode;
-  description?: string;
 }
 
 export interface SettlementRecord {
