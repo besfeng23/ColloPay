@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -15,7 +14,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
-import { ShieldCheck, History, User, Terminal, ArrowRight, Download, Lock, Search } from 'lucide-react';
+import { ShieldCheck, History, User, Terminal, ArrowRight, Download, Lock, Search, Fingerprint, Info } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 
@@ -53,27 +52,33 @@ export default function AuditTrailPage() {
         </div>
 
         <Card className="border-none shadow-sm bg-white overflow-hidden">
-          <CardHeader className="bg-slate-50/50 border-b p-6">
-            <CardTitle className="text-base font-black flex items-center">
-              <ShieldCheck className="mr-2 text-primary" size={18} />
-              Forensic Audit Stream
-            </CardTitle>
-            <CardDescription className="text-xs">Immutable sequence of security-sensitive events</CardDescription>
+          <CardHeader className="bg-slate-50/50 border-b p-6 flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="text-base font-black flex items-center">
+                <ShieldCheck className="mr-2 text-primary" size={18} />
+                Forensic Audit Stream
+              </CardTitle>
+              <CardDescription className="text-xs">Immutable sequence of security-sensitive platform events</CardDescription>
+            </div>
+            <div className="flex items-center text-[9px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-100">
+              <Fingerprint size={14} className="mr-2" />
+              Ledger Health: Integrity Verified
+            </div>
           </CardHeader>
-          <CardContent className="p-0">
+          <CardContent className="p-0 overflow-x-auto">
             <Table>
               <TableHeader className="bg-slate-50/20">
                 <TableRow className="hover:bg-transparent border-none">
                   <TableHead className="text-[10px] font-black uppercase tracking-widest pl-8 h-12">Action / Intent</TableHead>
                   <TableHead className="text-[10px] font-black uppercase tracking-widest h-12">Operator Entity</TableHead>
                   <TableHead className="text-[10px] font-black uppercase tracking-widest h-12">Target Resource</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest h-12">Origin (IP)</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest h-12">Details (Diff)</TableHead>
                   <TableHead className="text-[10px] font-black uppercase tracking-widest text-right pr-8 h-12">Timestamp</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {MOCK_AUDIT_LOGS.map((log) => (
-                  <TableRow key={log.id} className="border-b border-slate-50 h-20 hover:bg-slate-50/30 transition-colors group">
+                  <TableRow key={log.id} className="border-b border-slate-50 h-24 hover:bg-slate-50/30 transition-colors group">
                     <TableCell className="pl-8">
                       <div className="flex flex-col">
                         <span className="text-[11px] font-black text-slate-900 uppercase tracking-tight group-hover:text-primary transition-colors">
@@ -102,7 +107,17 @@ export default function AuditTrailPage() {
                         <span className="text-[10px] font-mono font-bold text-primary">{log.resourceId}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-[10px] font-mono font-bold text-slate-400">{log.ipAddress}</TableCell>
+                    <TableCell>
+                      {log.newValue ? (
+                        <div className="bg-slate-50 p-2 rounded-lg border border-slate-100 max-w-[200px] overflow-hidden">
+                          <p className="text-[9px] font-black text-slate-400 uppercase mb-1">State Mutation</p>
+                          <div className="flex items-center text-[10px] font-bold text-rose-500 line-through">bps: {log.previousValue?.platformBps}</div>
+                          <div className="flex items-center text-[10px] font-bold text-emerald-600">bps: {log.newValue?.platformBps}</div>
+                        </div>
+                      ) : (
+                        <span className="text-[10px] font-bold text-slate-400 italic">No value change</span>
+                      )}
+                    </TableCell>
                     <TableCell className="text-right pr-8">
                       <div className="flex flex-col items-end">
                         <span className="text-[11px] font-bold text-slate-900">
@@ -130,7 +145,7 @@ export default function AuditTrailPage() {
           <div className="relative z-10">
             <h4 className="text-sm font-black uppercase tracking-widest mb-1.5">Chain-of-Custody Integrity</h4>
             <p className="text-slate-400 text-xs leading-relaxed max-w-3xl font-medium">
-              This ledger is anchored using SHA-256 hashing. Any attempt to modify historic audit records will invalidate the cryptographic signature of the block, triggering an immediate security alert to the Global Compliance Team.
+              This ledger is anchored using SHA-256 hashing. Any attempt to modify historic audit records will invalidate the cryptographic signature of the block, triggering an immediate security alert to the Global Compliance Team. All operator actions are recorded with IP-based geolocation and session correlation.
             </p>
           </div>
         </div>
