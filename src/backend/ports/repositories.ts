@@ -1,6 +1,7 @@
 import type {
   AuditLogEntry,
   IdempotencyRecord,
+  ProcessorType,
   Transaction,
   TransactionStatus,
   TransactionStatusChange,
@@ -31,4 +32,8 @@ export interface WebhookEventRepository {
 
 export interface AuditLogRepository {
   write(entry: AuditLogEntry): Promise<void>;
+}
+
+export interface MerchantMappingRepository {
+  isProcessorMapped(input: { merchantId: string; partnerId: string; processor: ProcessorType }): Promise<boolean>;
 }

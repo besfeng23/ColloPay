@@ -7,6 +7,16 @@ export class IdempotencyService {
   constructor(private readonly idempotencyRepo: IdempotencyRepository) {}
 
   async enforce<T extends object>(scope: string, key: string, request: object, handler: () => Promise<T>): Promise<T> {
+    const result = await this.enforceWithMetadata(scope, key, request, handler);
+    return result.response;
+  }
+
+  async enforceWithMetadata<T extends object>(
+    scope: string,
+    key: string,
+    request: object,
+    handler: () => Promise<T>,
+  ): Promise<{ response: T; replayed: boolean }> {
     const requestHash = hashPayload(request);
     const existing = await this.idempotencyRepo.getByKey(scope, key);
 
@@ -15,7 +25,7 @@ export class IdempotencyService {
         throw new DomainError('Idempotency key replay conflict.', 'CONFLICT_ERROR', { scope, key });
       }
 
-      return JSON.parse(existing.responseSnapshot) as T;
+      return { response: JSON.parse(existing.responseSnapshot) as T, replayed: true };
     }
 
     const response = await handler();
@@ -29,7 +39,7 @@ export class IdempotencyService {
     };
 
     await this.idempotencyRepo.create(record);
-    return response;
+    return { response, replayed: false };
   }
 }
 
