@@ -13,6 +13,7 @@ import type {
 import type {
   AuditLogRepository,
   IdempotencyRepository,
+  MerchantMappingRepository,
   TransactionRepository,
   TransactionStatusHistoryRepository,
 } from '../../ports/repositories';
@@ -87,6 +88,14 @@ class InMemoryAuditRepo implements AuditLogRepository {
   }
 }
 
+class InMemoryMerchantMappingRepo implements MerchantMappingRepository {
+  public allowMapping = true;
+
+  async isProcessorMapped(_input: { merchantId: string; partnerId: string; processor: 'SPEEDYPAY' | 'STRIPE' | 'ADYEN' | 'MPESA' }): Promise<boolean> {
+    return this.allowMapping;
+  }
+}
+
 class FakeSpeedyPayAdapter implements ProcessorAdapter {
   readonly processor = 'SPEEDYPAY' as const;
 
@@ -112,6 +121,7 @@ test('TransactionOrchestrationService creates transaction with fee and status hi
   const historyRepo = new InMemoryStatusHistoryRepo();
   const idempotencyRepo = new InMemoryIdempotencyRepo();
   const auditRepo = new InMemoryAuditRepo();
+  const mappingRepo = new InMemoryMerchantMappingRepo();
 
   const service = new TransactionOrchestrationService(
     transactionRepo,
@@ -120,6 +130,7 @@ test('TransactionOrchestrationService creates transaction with fee and status hi
       getPolicy: () => ({ processorBasisPoints: 200, platformBasisPoints: 100, flatFeeMinor: 10 }),
     }),
     new InMemoryProcessorAdapterRegistry([new FakeSpeedyPayAdapter()]),
+    mappingRepo,
     new IdempotencyService(idempotencyRepo),
     new AuditLogService(auditRepo),
   );
@@ -136,5 +147,77 @@ test('TransactionOrchestrationService creates transaction with fee and status hi
   assert.equal(created.feeBreakdown.totalFeeMinor, 310);
   assert.equal(created.processorTransactionId, 'spd_001');
   assert.equal(historyRepo.entries.length, 2);
-  assert.equal(auditRepo.logs.length, 1);
+  assert.equal(auditRepo.logs.length, 4);
+});
+
+test('TransactionOrchestrationService returns normalized response and explicit idempotent replay', async () => {
+  const transactionRepo = new InMemoryTransactionRepo();
+  const historyRepo = new InMemoryStatusHistoryRepo();
+  const idempotencyRepo = new InMemoryIdempotencyRepo();
+  const auditRepo = new InMemoryAuditRepo();
+  const mappingRepo = new InMemoryMerchantMappingRepo();
+
+  const service = new TransactionOrchestrationService(
+    transactionRepo,
+    historyRepo,
+    new FeeEngineService({
+      getPolicy: () => ({ processorBasisPoints: 200, platformBasisPoints: 100, flatFeeMinor: 10 }),
+    }),
+    new InMemoryProcessorAdapterRegistry([new FakeSpeedyPayAdapter()]),
+    mappingRepo,
+    new IdempotencyService(idempotencyRepo),
+    new AuditLogService(auditRepo),
+  );
+
+  const request = {
+    idempotencyKey: 'idem-key-replay',
+    externalReference: 'order-replay',
+    merchant: { merchantId: 'm1', partnerId: 'p1' },
+    amount: { amountMinor: 2_000, currency: 'USD' as const },
+    processor: 'SPEEDYPAY' as const,
+  };
+
+  const first = await service.createPartnerPayment(request);
+  const replay = await service.createPartnerPayment(request);
+
+  assert.equal(first.status, 'AUTHORIZED');
+  assert.equal(first.idempotency.replayed, false);
+  assert.equal(replay.transactionId, first.transactionId);
+  assert.equal(replay.idempotency.replayed, true);
+});
+
+test('TransactionOrchestrationService rejects unmapped merchant processor pair', async () => {
+  const transactionRepo = new InMemoryTransactionRepo();
+  const historyRepo = new InMemoryStatusHistoryRepo();
+  const idempotencyRepo = new InMemoryIdempotencyRepo();
+  const auditRepo = new InMemoryAuditRepo();
+  const mappingRepo = new InMemoryMerchantMappingRepo();
+  mappingRepo.allowMapping = false;
+
+  const service = new TransactionOrchestrationService(
+    transactionRepo,
+    historyRepo,
+    new FeeEngineService({
+      getPolicy: () => ({ processorBasisPoints: 200, platformBasisPoints: 100, flatFeeMinor: 10 }),
+    }),
+    new InMemoryProcessorAdapterRegistry([new FakeSpeedyPayAdapter()]),
+    mappingRepo,
+    new IdempotencyService(idempotencyRepo),
+    new AuditLogService(auditRepo),
+  );
+
+  await assert.rejects(
+    () =>
+      service.createPartnerPayment({
+        idempotencyKey: 'idem-key-map-fail',
+        externalReference: 'order-map-fail',
+        merchant: { merchantId: 'm1', partnerId: 'p1' },
+        amount: { amountMinor: 1_000, currency: 'USD' },
+        processor: 'SPEEDYPAY',
+      }),
+    (error: unknown) => {
+      assert.equal((error as { name: string }).name, 'DomainError');
+      return true;
+    },
+  );
 });

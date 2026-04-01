@@ -244,6 +244,25 @@ export interface ProcessWebhookResult {
   ignoredReason?: string;
 }
 
+export interface PartnerPaymentResponse {
+  transactionId: string;
+  externalReference: string;
+  status: TransactionStatus;
+  processor: ProcessorType;
+  processorReference?: string;
+  amount: Money;
+  netAmountMinor: number;
+  feeBreakdown: FeeBreakdown;
+  idempotency: {
+    key: string;
+    replayed: boolean;
+  };
+  auditTrail: {
+    createdAt: ISODateString;
+    updatedAt: ISODateString;
+  };
+}
+
 export interface AuditLogEntry {
   action: string;
   actor: string;
