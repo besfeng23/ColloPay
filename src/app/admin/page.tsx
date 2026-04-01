@@ -36,9 +36,10 @@ import Link from 'next/link';
 import { 
   ChartContainer, 
   ChartTooltip, 
-  ChartTooltipContent 
+  ChartTooltipContent,
+  type ChartConfig
 } from "@/components/ui/chart";
-import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid } from "recharts";
+import { Area, AreaChart, XAxis, YAxis, CartesianGrid } from "recharts";
 
 const chartData = [
   { hour: "00:00", volume: 4200000 },
@@ -49,6 +50,13 @@ const chartData = [
   { hour: "20:00", volume: 11200000 },
   { hour: "23:59", volume: 9400000 },
 ];
+
+const chartConfig = {
+  volume: {
+    label: "Processing Volume",
+    color: "hsl(var(--primary))",
+  },
+} satisfies ChartConfig;
 
 export default function AdminDashboard() {
   const [mounted, setMounted] = useState(false);
@@ -151,7 +159,7 @@ export default function AdminDashboard() {
           <CardContent className="p-6">
             <div className="h-[300px] w-full">
               {mounted && (
-                <ResponsiveContainer width="100%" height="100%">
+                <ChartContainer config={chartConfig} className="h-full w-full">
                   <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id="colorVolume" x1="0" y1="0" x2="0" y2="1">
@@ -178,7 +186,7 @@ export default function AdminDashboard() {
                       fill="url(#colorVolume)" 
                     />
                   </AreaChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               )}
             </div>
           </CardContent>
