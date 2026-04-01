@@ -24,8 +24,21 @@ export type SettlementStatus = (typeof SETTLEMENT_STATUSES)[number];
 export const RECONCILIATION_STATUSES = ['UNMATCHED', 'MATCHED', 'PARTIALLY_MATCHED', 'EXCEPTION', 'RESOLVED'] as const;
 export type ReconciliationStatus = (typeof RECONCILIATION_STATUSES)[number];
 
-export const WEBHOOK_STATUSES = ['RECEIVED', 'VERIFIED', 'PROCESSED', 'IGNORED', 'FAILED'] as const;
+export const WEBHOOK_STATUSES = [
+  'RECEIVED',
+  'SIGNATURE_VERIFIED',
+  'PROCESSING',
+  'PROCESSED',
+  'DUPLICATE',
+  'RETRY_PENDING',
+  'DEAD_LETTER',
+  'MANUAL_REVIEW',
+  'FAILED',
+] as const;
 export type WebhookStatus = (typeof WEBHOOK_STATUSES)[number];
+
+export const WEBHOOK_CORRELATION_STATUSES = ['UNRESOLVED', 'CORRELATED', 'CORRELATION_FAILED'] as const;
+export type WebhookCorrelationStatus = (typeof WEBHOOK_CORRELATION_STATUSES)[number];
 
 export const FEE_TYPES = ['PERCENTAGE_BPS', 'FLAT', 'TIERED', 'HYBRID'] as const;
 export type FeeType = (typeof FEE_TYPES)[number];
@@ -176,12 +189,21 @@ export interface WebhookEvent {
   id: string;
   processor: ProcessorType;
   eventId: string;
+  processingKey: string;
   eventType: string;
   status: WebhookStatus;
+  correlationStatus: WebhookCorrelationStatus;
+  transactionId?: string;
+  attemptCount: number;
   occurredAt: ISODateString;
   receivedAt: ISODateString;
   signature?: string;
   payload: unknown;
+  processedAt?: ISODateString;
+  nextRetryAt?: ISODateString;
+  outcomeCode?: string;
+  deadLetterReason?: string;
+  lastErrorAt?: ISODateString;
   processingError?: string;
 }
 
@@ -230,7 +252,22 @@ export interface TransactionStatusChange {
 }
 
 export type CreateTransactionRequest = PaymentRequest;
-export type ProcessorWebhookEvent = Omit<WebhookEvent, 'id' | 'status' | 'receivedAt' | 'processingError'>;
+export type ProcessorWebhookEvent = Omit<
+  WebhookEvent,
+  | 'id'
+  | 'processingKey'
+  | 'status'
+  | 'correlationStatus'
+  | 'transactionId'
+  | 'attemptCount'
+  | 'receivedAt'
+  | 'processedAt'
+  | 'nextRetryAt'
+  | 'outcomeCode'
+  | 'deadLetterReason'
+  | 'lastErrorAt'
+  | 'processingError'
+>;
 
 export interface ProcessorCreatePaymentResult {
   processorTransactionId: string;
@@ -241,7 +278,17 @@ export interface ProcessorCreatePaymentResult {
 export interface ProcessWebhookResult {
   acknowledged: boolean;
   transactionId?: string;
+  status?: WebhookStatus;
+  correlationStatus?: WebhookCorrelationStatus;
+  retryable?: boolean;
+  attemptCount?: number;
   ignoredReason?: string;
+}
+
+export interface ProcessWebhookCommand {
+  event: ProcessorWebhookEvent;
+  receivedAt?: ISODateString;
+  allowRetry?: boolean;
 }
 
 export interface PartnerPaymentResponse {
