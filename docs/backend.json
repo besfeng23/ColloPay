@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "Partner": {
@@ -25,7 +26,8 @@
         "industry": { "type": "string" },
         "status": { "type": "string", "enum": ["ACTIVE", "SUSPENDED", "INACTIVE"] },
         "externalReference": { "type": "string" },
-        "defaultCurrency": { "type": "string" }
+        "defaultCurrency": { "type": "string" },
+        "merchantOfRecord": { "type": "boolean" }
       },
       "required": ["id", "partnerId", "name", "status"]
     },
@@ -87,6 +89,19 @@
         "receivedAt": { "type": "string", "format": "date-time" },
         "payload": { "type": "object" }
       }
+    },
+    "ApprovalRequest": {
+      "title": "Approval Request",
+      "description": "Request for a sensitive operation that requires dual-authorization.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "operation": { "type": "string" },
+        "requestedBy": { "type": "string" },
+        "status": { "type": "string", "enum": ["PENDING", "APPROVED", "REJECTED"] },
+        "payload": { "type": "object" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
     }
   },
   "auth": {
@@ -117,16 +132,9 @@
       "schema": "#/backend/entities/WebhookEvent",
       "description": "Network ingestion logs."
     },
-    "/idempotencyKeys/{scopedKey}": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "requestHash": { "type": "string" },
-          "responseSnapshot": { "type": "string" },
-          "createdAt": { "type": "string" }
-        }
-      },
-      "description": "Distributed locking for duplicate request protection."
+    "/approvalRequests/{requestId}": {
+      "schema": "#/backend/entities/ApprovalRequest",
+      "description": "Dual-auth governance queue."
     }
   }
 }

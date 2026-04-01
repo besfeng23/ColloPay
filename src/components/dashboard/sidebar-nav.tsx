@@ -7,7 +7,6 @@ import {
   Users, 
   Store, 
   CreditCard, 
-  Shuffle, 
   History, 
   FileBarChart, 
   Settings, 
@@ -17,7 +16,8 @@ import {
   Scale,
   Key,
   Zap,
-  UserPlus
+  UserPlus,
+  ClipboardCheck
 } from 'lucide-react';
 
 interface SidebarNavProps {
@@ -29,6 +29,7 @@ export function SidebarNav({ type }: SidebarNavProps) {
 
   const adminLinks = [
     { name: 'Overview', href: '/admin', icon: LayoutDashboard },
+    { name: 'Approval Queue', href: '/admin/approvals', icon: ClipboardCheck },
     { name: 'Onboarding Queue', href: '/admin/onboarding', icon: UserPlus },
     { name: 'Partners', href: '/admin/partners', icon: Users },
     { name: 'Merchants', href: '/admin/merchants', icon: Store },
