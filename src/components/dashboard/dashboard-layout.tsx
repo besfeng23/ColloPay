@@ -3,12 +3,21 @@
 
 import { ReactNode, useState } from 'react';
 import { SidebarNav } from './sidebar-nav';
-import { LogOut, Bell, User, Search, Command, Menu, X, ShieldCheck } from 'lucide-react';
+import { LogOut, Bell, Search, Command, Menu, ArrowLeftRight } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuLabel, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
+import { toast } from '@/hooks/use-toast';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -22,9 +31,22 @@ export function DashboardLayout({ children, type, title }: DashboardLayoutProps)
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (type === 'admin' && searchValue.trim()) {
-      router.push(`/admin/explorer?q=${encodeURIComponent(searchValue)}`);
+    if (searchValue.trim()) {
+      // Both portals can use the explorer if we want, but usually it's an admin tool
+      if (type === 'admin') {
+        router.push(`/admin/explorer?q=${encodeURIComponent(searchValue)}`);
+      } else {
+        router.push(`/partner/transactions?q=${encodeURIComponent(searchValue)}`);
+      }
     }
+  };
+
+  const handleSignOut = () => {
+    toast({
+      title: "Session Terminated",
+      description: "You have been securely signed out of the infrastructure.",
+    });
+    router.push('/');
   };
 
   const Logo = () => (
@@ -52,15 +74,32 @@ export function DashboardLayout({ children, type, title }: DashboardLayoutProps)
         </div>
 
         <div className="p-4 mt-auto border-t border-sidebar-border bg-sidebar/20">
-          <div className="flex items-center p-3 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors cursor-pointer group">
-            <Avatar className="h-8 w-8 ring-1 ring-white/10 group-hover:ring-white/20">
-              <AvatarFallback className="bg-primary text-[10px] font-bold">MT</AvatarFallback>
-            </Avatar>
-            <div className="ml-3 overflow-hidden">
-              <p className="text-xs font-bold text-white truncate">Marcus Thorne</p>
-              <p className="text-[9px] text-sidebar-foreground/40 truncate uppercase tracking-widest font-bold">Lead Ops • {type}</p>
-            </div>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <div className="flex items-center p-3 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors cursor-pointer group">
+                <Avatar className="h-8 w-8 ring-1 ring-white/10 group-hover:ring-white/20">
+                  <AvatarFallback className="bg-primary text-[10px] font-bold text-white">MT</AvatarFallback>
+                </Avatar>
+                <div className="ml-3 overflow-hidden">
+                  <p className="text-xs font-bold text-white truncate">Marcus Thorne</p>
+                  <p className="text-[9px] text-sidebar-foreground/40 truncate uppercase tracking-widest font-bold">Lead Ops • {type}</p>
+                </div>
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56 mb-4" side="top" align="start">
+              <DropdownMenuLabel>Institutional Access</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => router.push(type === 'admin' ? '/partner' : '/admin')}>
+                <ArrowLeftRight className="mr-2 h-4 w-4" />
+                <span>Switch to {type === 'admin' ? 'Partner Portal' : 'Admin Console'}</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Sign Out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </aside>
 
@@ -85,15 +124,13 @@ export function DashboardLayout({ children, type, title }: DashboardLayoutProps)
                   <div className="py-6 h-[calc(100vh-64px)] overflow-y-auto">
                     <SidebarNav type={type} />
                     <div className="px-6 mt-8">
-                      <div className="flex items-center p-3 rounded-xl bg-white/5 border border-white/5">
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback className="bg-primary text-[10px] font-bold">MT</AvatarFallback>
-                        </Avatar>
-                        <div className="ml-3 overflow-hidden">
-                          <p className="text-xs font-bold text-white">Marcus Thorne</p>
-                          <p className="text-[9px] text-sidebar-foreground/40 uppercase tracking-widest font-bold">{type}</p>
-                        </div>
-                      </div>
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-start text-white border-white/10 hover:bg-white/5"
+                        onClick={handleSignOut}
+                      >
+                        <LogOut className="mr-2 h-4 w-4" /> Sign Out
+                      </Button>
                     </div>
                   </div>
                 </SheetContent>
@@ -127,15 +164,33 @@ export function DashboardLayout({ children, type, title }: DashboardLayoutProps)
             
             <div className="hidden sm:block h-6 w-px bg-slate-200"></div>
             
-            <div className="flex items-center space-x-2 sm:space-x-3 focus:outline-none group cursor-pointer">
-              <div className="text-right hidden sm:block">
-                <p className="text-xs font-bold text-slate-900 leading-none">Marcus Thorne</p>
-                <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold mt-1">Platform Operations</p>
-              </div>
-              <Avatar className="h-8 w-8 ring-2 ring-slate-100 group-hover:ring-slate-200 transition-all">
-                <AvatarFallback className="bg-slate-100 text-slate-600 text-[10px] font-bold">MT</AvatarFallback>
-              </Avatar>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <div className="flex items-center space-x-2 sm:space-x-3 focus:outline-none group cursor-pointer">
+                  <div className="text-right hidden sm:block">
+                    <p className="text-xs font-bold text-slate-900 leading-none">Marcus Thorne</p>
+                    <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold mt-1">Platform Operations</p>
+                  </div>
+                  <Avatar className="h-8 w-8 ring-2 ring-slate-100 group-hover:ring-slate-200 transition-all">
+                    <AvatarFallback className="bg-slate-100 text-slate-600 text-[10px] font-bold">MT</AvatarFallback>
+                  </Avatar>
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => router.push(type === 'admin' ? '/admin/settings' : '/partner/settings')}>
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push(type === 'admin' ? '/partner' : '/admin')}>
+                  Switch Portal
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </header>
 
