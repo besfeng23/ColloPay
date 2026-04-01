@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Store, Plus, ArrowUpRight, Activity } from 'lucide-react';
+import { Store, Plus, ArrowUpRight, Activity, ShieldCheck } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 export default function PartnerMerchantsPage() {
@@ -25,30 +25,38 @@ export default function PartnerMerchantsPage() {
 
   return (
     <DashboardLayout type="partner" title="Managed Merchant Portfolio">
-      <div className="flex justify-between items-center mb-8">
-        <p className="text-muted-foreground text-sm">Active business entities within your ecosystem hierarchy.</p>
-        <Button className="bg-primary text-white font-black text-[11px] uppercase tracking-widest h-10 px-6">
-          <Plus size={16} className="mr-2" /> Board New Merchant
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <p className="text-muted-foreground text-sm max-w-xl">
+          Active business entities within your ecosystem hierarchy. Manage processor mappings and monitor individual commercial health.
+        </p>
+        <Button className="bg-primary text-white font-black text-[11px] uppercase tracking-widest h-11 px-8 shadow-lg shadow-primary/20">
+          <Plus size={18} className="mr-2" /> Board New Merchant
         </Button>
       </div>
 
       <div className="grid grid-cols-1 gap-8">
         <Card className="border-none shadow-sm bg-white overflow-hidden">
-          <CardHeader className="bg-slate-50/50 border-b p-6">
-            <CardTitle className="text-base font-black flex items-center">
-              <Store className="mr-2 text-primary" size={18} />
-              Merchant Directory
-            </CardTitle>
+          <CardHeader className="bg-slate-50/50 border-b p-6 flex flex-row items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-primary/10 rounded-lg text-primary">
+                <Store size={18} />
+              </div>
+              <CardTitle className="text-base font-black tracking-tight">Merchant Registry</CardTitle>
+            </div>
+            <div className="flex items-center text-[9px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-100">
+              <ShieldCheck size={14} className="mr-2" />
+              KYC/KYB Verified
+            </div>
           </CardHeader>
-          <CardContent className="p-0">
+          <CardContent className="p-0 overflow-x-auto">
             <Table>
               <TableHeader className="bg-slate-50/20">
-                <TableRow className="hover:bg-transparent border-none">
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest pl-8 h-12">Entity Name / ID</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest h-12">Industry</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest h-12">Status</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest h-12">30D Volume</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-right pr-8 h-12">Action</TableHead>
+                <TableRow className="hover:bg-transparent border-none h-12">
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest pl-8">Entity Name / ID</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest">Industry</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest">Status</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest">30D Volume (PHP)</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-right pr-8">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -57,7 +65,7 @@ export default function PartnerMerchantsPage() {
                     <TableCell className="pl-8">
                       <div className="flex flex-col">
                         <span className="text-sm font-bold text-slate-900">{merchant.name}</span>
-                        <span className="text-[9px] text-slate-400 font-mono uppercase tracking-tight">M-{merchant.id}</span>
+                        <span className="text-[9px] text-slate-400 font-mono font-bold uppercase tracking-tight">M-{merchant.id}</span>
                       </div>
                     </TableCell>
                     <TableCell className="text-xs font-medium text-slate-600">{merchant.industry}</TableCell>
@@ -68,11 +76,11 @@ export default function PartnerMerchantsPage() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center text-xs font-bold text-slate-900">
-                        $12,420.00 <ArrowUpRight size={12} className="ml-1 text-emerald-500" />
+                        {mounted ? "₱142,840.00" : "..."} <ArrowUpRight size={12} className="ml-1 text-emerald-500" />
                       </div>
                     </TableCell>
                     <TableCell className="text-right pr-8">
-                      <Button variant="ghost" size="sm" className="font-black uppercase text-[10px] tracking-widest text-primary hover:bg-primary/5 h-9">
+                      <Button variant="ghost" size="sm" className="font-black uppercase text-[10px] tracking-widest text-primary hover:bg-primary/5 h-9 px-4">
                         Forensic <Activity size={14} className="ml-1.5" />
                       </Button>
                     </TableCell>

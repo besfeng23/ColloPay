@@ -17,7 +17,8 @@ import {
   ArrowUpRight,
   Webhook,
   BarChart3,
-  TrendingUp
+  TrendingUp,
+  Fingerprint
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { 
@@ -59,7 +60,7 @@ export default function AdminDashboard() {
     <DashboardLayout type="admin" title="Platform Intelligence Overview">
       {/* Critical Status Bar */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
-        <div className="flex items-center justify-between bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 shadow-sm">
+        <div className="flex items-center justify-between bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 shadow-sm hover:bg-amber-100/50 transition-colors cursor-pointer group">
           <div className="flex items-center space-x-3">
             <div className="bg-amber-100 p-2 rounded-lg text-amber-600">
               <AlertTriangle size={18} />
@@ -69,7 +70,7 @@ export default function AdminDashboard() {
               <p className="text-xs font-bold text-amber-600">8 unresolved exceptions</p>
             </div>
           </div>
-          <Link href="/admin/reconciliation" className="text-amber-800 hover:underline">
+          <Link href="/admin/reconciliation" className="text-amber-800 opacity-0 group-hover:opacity-100 transition-opacity">
             <ArrowRight size={16} />
           </Link>
         </div>
@@ -84,10 +85,10 @@ export default function AdminDashboard() {
               <p className="text-xs font-bold text-emerald-600">All systems operational</p>
             </div>
           </div>
-          <Badge className="bg-emerald-500 text-white border-none text-[9px]">99.98%</Badge>
+          <Badge className="bg-emerald-500 text-white border-none text-[9px] font-black">99.98%</Badge>
         </div>
 
-        <div className="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 shadow-sm">
+        <div className="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 shadow-sm hover:bg-blue-100/50 transition-colors cursor-pointer group">
           <div className="flex items-center space-x-3">
             <div className="bg-blue-100 p-2 rounded-lg text-blue-600">
               <Scale size={18} />
@@ -97,7 +98,7 @@ export default function AdminDashboard() {
               <p className="text-xs font-bold text-blue-600">2 batches awaiting approval</p>
             </div>
           </div>
-          <Link href="/admin/settlements" className="text-blue-800 hover:underline">
+          <Link href="/admin/settlements" className="text-blue-800 opacity-0 group-hover:opacity-100 transition-opacity">
             <ArrowRight size={16} />
           </Link>
         </div>
@@ -139,7 +140,7 @@ export default function AdminDashboard() {
         <Card className="lg:col-span-2 border-none shadow-sm bg-white overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between bg-slate-50/30 border-b p-6">
             <div>
-              <CardTitle className="text-base font-black text-slate-900">Infrastructure Volume Trend</CardTitle>
+              <CardTitle className="text-base font-black text-slate-900 tracking-tight">Infrastructure Volume Trend</CardTitle>
               <CardDescription className="text-xs font-medium text-slate-500">24-hour aggregate processing volume (PHP)</CardDescription>
             </div>
             <div className="flex items-center text-[10px] font-black text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-100">
@@ -166,9 +167,7 @@ export default function AdminDashboard() {
                       tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }}
                       dy={10}
                     />
-                    <YAxis 
-                      hide 
-                    />
+                    <YAxis hide />
                     <ChartTooltip content={<ChartTooltipContent />} />
                     <Area 
                       type="monotone" 
@@ -189,7 +188,7 @@ export default function AdminDashboard() {
         <div className="space-y-6 sm:space-y-8">
           <Card className="border-none shadow-sm bg-white overflow-hidden">
             <CardHeader className="bg-slate-50/30 border-b p-4 sm:p-6">
-              <CardTitle className="text-base font-black text-slate-900 flex items-center">
+              <CardTitle className="text-base font-black text-slate-900 flex items-center tracking-tight">
                 <ShieldCheck size={18} className="mr-2 text-primary" />
                 Security Audit
               </CardTitle>
@@ -241,7 +240,10 @@ export default function AdminDashboard() {
       <Card className="border-none shadow-sm bg-white overflow-hidden mt-8">
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-slate-50/30 border-b p-4 sm:p-6 gap-4">
           <div>
-            <CardTitle className="text-base font-black text-slate-900">Live Infrastructure Stream</CardTitle>
+            <div className="flex items-center space-x-2 mb-1">
+              <Fingerprint className="text-primary" size={18} />
+              <CardTitle className="text-base font-black text-slate-900 tracking-tight">Live Infrastructure Stream</CardTitle>
+            </div>
             <CardDescription className="text-xs font-medium text-slate-500">Real-time visibility into global financial flows</CardDescription>
           </div>
           <Link href="/admin/transactions" className="text-primary hover:underline text-[11px] font-black uppercase tracking-widest flex items-center">

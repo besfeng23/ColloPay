@@ -1,3 +1,4 @@
+
 import { Partner, Merchant, Transaction, Processor, Settlement, AuditLog, FeeRule, WebhookEvent, TransactionStatus, ReconStatus, APIKey } from './types';
 
 // Deterministic recent timestamps
@@ -30,7 +31,6 @@ export const MOCK_TRANSACTIONS: Transaction[] = Array.from({ length: 30 }).map((
   const baseAmount = 1500000 + (i * 50000); 
   
   // Scenarios for client email alignment
-  const isDirectRemittance = i % 2 === 0;
   const platformBps = 1000; // 10%
   const platformFee = Math.round(baseAmount * (platformBps / 10000));
   const processorFee = 5000; // Fixed processor cost
