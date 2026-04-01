@@ -107,12 +107,24 @@ class FakeSpeedyPayAdapter implements ProcessorAdapter {
     };
   }
 
-  async verifyWebhookSignature(): Promise<boolean> {
-    return true;
+  async queryPaymentStatus() {
+    return {
+      processorTransactionId: 'spd_001',
+      status: 'AUTHORIZED' as const,
+      rawResponse: { ok: true },
+    };
   }
 
-  async resolveWebhookUpdate() {
-    return null;
+  async processWebhook() {
+    return { verified: true };
+  }
+
+  normalizeProcessorResponse(raw: unknown, _context: 'create_payment' | 'query_status' | 'webhook') {
+    return {
+      processorTransactionId: 'spd_001',
+      status: 'AUTHORIZED' as const,
+      rawResponse: raw,
+    };
   }
 }
 

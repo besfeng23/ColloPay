@@ -155,12 +155,24 @@ class FakeAdapter implements ProcessorAdapter {
     throw new Error('unused');
   }
 
-  async verifyWebhookSignature(): Promise<boolean> {
-    return true;
+  async queryPaymentStatus() {
+    return {
+      processorTransactionId: 'proc_tx_1',
+      status: 'AUTHORIZED' as const,
+      rawResponse: { ok: true },
+    };
   }
 
-  async resolveWebhookUpdate(): Promise<{ processorTransactionId: string; nextStatus: 'AUTHORIZED'; reason: string }> {
-    return { processorTransactionId: 'proc_tx_1', nextStatus: 'AUTHORIZED', reason: 'webhook_authorized' };
+  async processWebhook(): Promise<{ verified: boolean; processorTransactionId: string; nextStatus: 'AUTHORIZED'; reason: string }> {
+    return { verified: true, processorTransactionId: 'proc_tx_1', nextStatus: 'AUTHORIZED', reason: 'webhook_authorized' };
+  }
+
+  normalizeProcessorResponse(raw: unknown, _context: 'create_payment' | 'query_status' | 'webhook') {
+    return {
+      processorTransactionId: 'proc_tx_1',
+      status: 'AUTHORIZED' as const,
+      rawResponse: raw,
+    };
   }
 }
 
