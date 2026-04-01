@@ -55,8 +55,8 @@ export class WebhookProcessingService {
     }
 
     const adapter = this.adapterRegistry.getAdapter(validEvent.processor);
-    const verified = await adapter.verifyWebhookSignature(validEvent);
-    if (!verified) {
+    const webhookResolution = await adapter.processWebhook(validEvent);
+    if (!webhookResolution.verified) {
       await this.webhookEventRepo.markStatus({
         eventId: validEvent.eventId,
         processor: validEvent.processor,
@@ -76,8 +76,7 @@ export class WebhookProcessingService {
       outcomeCode: 'signature_verified',
     });
 
-    const update = await adapter.resolveWebhookUpdate(validEvent);
-    if (!update) {
+    if (!webhookResolution.processorTransactionId || !webhookResolution.nextStatus || !webhookResolution.reason) {
       await this.webhookEventRepo.markStatus({
         eventId: validEvent.eventId,
         processor: validEvent.processor,
@@ -95,7 +94,7 @@ export class WebhookProcessingService {
       outcomeCode: 'processing_started',
     });
 
-    const transaction = await this.transactionRepo.getByProcessorTransactionId(update.processorTransactionId);
+    const transaction = await this.transactionRepo.getByProcessorTransactionId(webhookResolution.processorTransactionId);
     if (!transaction) {
       const deadLetterReason = 'missing_internal_transaction_correlation';
       await this.webhookEventRepo.markStatus({
@@ -123,8 +122,8 @@ export class WebhookProcessingService {
     try {
       await this.transactionOrchestrationService.applyStatusUpdate(
         transaction.id,
-        update.nextStatus,
-        update.reason,
+        webhookResolution.nextStatus,
+        webhookResolution.reason,
         `webhook:${validEvent.processor}`,
       );
     } catch (error: unknown) {
@@ -171,7 +170,7 @@ export class WebhookProcessingService {
       occurredAt: new Date().toISOString(),
       details: {
         transactionId: transaction.id,
-        nextStatus: update.nextStatus,
+        nextStatus: webhookResolution.nextStatus,
         eventType: validEvent.eventType,
       },
     });
