@@ -1,88 +1,98 @@
 import { Partner, Merchant, Transaction, Processor, Settlement, AuditLog, FeeRule, WebhookEvent, TransactionStatus, ReconStatus, APIKey } from './types';
 
+// Deterministic recent timestamps
+const now = new Date();
+const minutesAgo = (m: number) => new Date(now.getTime() - m * 60000).toISOString();
+const hoursAgo = (h: number) => new Date(now.getTime() - h * 3600000).toISOString();
+const daysAgo = (d: number) => new Date(now.getTime() - d * 86400000).toISOString();
+
 export const MOCK_PARTNERS: Partner[] = [
-  { id: 'p1', name: 'ColloPay Enterprise', contactEmail: 'ops@collo.com', status: 'active', createdAt: '2024-01-15T10:00:00Z' },
-  { id: 'p2', name: 'Vortex Capital', contactEmail: 'partners@vortex.com', status: 'active', createdAt: '2024-02-10T12:00:00Z' },
+  { id: 'p_ent_01', name: 'Global Finance Systems', contactEmail: 'compliance@gfs-global.com', status: 'active', createdAt: daysAgo(120) },
+  { id: 'p_ent_02', name: 'Vantage Payment Group', contactEmail: 'ops@vantagepay.io', status: 'active', createdAt: daysAgo(95) },
+  { id: 'p_ent_03', name: 'Apex Treasury Solutions', contactEmail: 'security@apextreasury.com', status: 'onboarding', createdAt: daysAgo(2) },
 ];
 
 export const MOCK_MERCHANTS: Merchant[] = [
-  { id: 'm1', partnerId: 'p1', name: 'Blue Horizon Retail', industry: 'E-commerce', status: 'active', createdAt: '2024-01-20T14:30:00Z' },
-  { id: 'm2', partnerId: 'p1', name: 'Summit Dynamics', industry: 'SaaS', status: 'active', createdAt: '2024-01-25T11:20:00Z' },
-  { id: 'm3', partnerId: 'p2', name: 'Iron Gate Security', industry: 'Services', status: 'active', createdAt: '2024-02-15T16:45:00Z' },
-  { id: 'm4', partnerId: 'p1', name: 'Lumina Tech Labs', industry: 'Software', status: 'active', createdAt: '2024-03-01T09:00:00Z' },
-  { id: 'm5', partnerId: 'p2', name: 'Global Logistics', industry: 'Transportation', status: 'under_review', createdAt: '2024-03-05T10:00:00Z' },
-  { id: 'm6', partnerId: 'p1', name: 'Natura Wellness', industry: 'Healthcare', status: 'active', createdAt: '2024-03-10T15:30:00Z' },
+  { id: 'm_8821', partnerId: 'p_ent_01', name: 'Stratosphere Retail', industry: 'Enterprise E-commerce', status: 'active', createdAt: daysAgo(60) },
+  { id: 'm_9932', partnerId: 'p_ent_01', name: 'Novus SaaS Platform', industry: 'Software Subscriptions', status: 'active', createdAt: daysAgo(45) },
+  { id: 'm_4412', partnerId: 'p_ent_02', name: 'IronClad Security Services', industry: 'Professional Services', status: 'active', createdAt: daysAgo(30) },
+  { id: 'm_7721', partnerId: 'p_ent_01', name: 'Lumina Digital Media', industry: 'Digital Content', status: 'active', createdAt: daysAgo(15) },
+  { id: 'm_1102', partnerId: 'p_ent_02', name: 'Global Logistics Hub', industry: 'Logistics', status: 'under_review', createdAt: daysAgo(5) },
+  { id: 'm_5592', partnerId: 'p_ent_01', name: 'Nexus Health Systems', industry: 'Healthcare', status: 'active', createdAt: daysAgo(20) },
 ];
 
 export const MOCK_PROCESSORS: Processor[] = [
-  { id: 'proc1', name: 'SpeedyPay', type: 'card', adapterKey: 'speedypay_v1', status: 'active' },
-  { id: 'proc2', name: 'GlobalDirect', type: 'bank', adapterKey: 'globaldirect_ach', status: 'active' },
+  { id: 'proc_sp_v1', name: 'SpeedyPay V1', type: 'card', adapterKey: 'speedypay_pci_v1', status: 'active' },
+  { id: 'proc_gd_ach', name: 'GlobalDirect ACH', type: 'bank', adapterKey: 'globaldirect_ach_v2', status: 'active' },
+  { id: 'proc_wire_intl', name: 'Intl Wire Gateway', type: 'bank', adapterKey: 'swift_direct_v1', status: 'maintenance' },
 ];
 
 export const MOCK_FEE_RULES: FeeRule[] = [
-  { id: 'fr1', partnerId: 'p1', fixedFee: 15, percentageFee: 290, effectiveFrom: '2024-01-01T00:00:00Z', status: 'active' },
-  { id: 'fr2', partnerId: 'p1', merchantId: 'm2', fixedFee: 10, percentageFee: 250, effectiveFrom: '2024-01-01T00:00:00Z', status: 'active' },
-  { id: 'fr3', partnerId: 'p2', fixedFee: 25, percentageFee: 310, effectiveFrom: '2024-02-01T00:00:00Z', status: 'active' },
+  { id: 'fr_std_01', partnerId: 'p_ent_01', fixedFee: 25, percentageFee: 290, effectiveFrom: daysAgo(180), status: 'active' },
+  { id: 'fr_mch_01', partnerId: 'p_ent_01', merchantId: 'm_9932', fixedFee: 15, percentageFee: 220, effectiveFrom: daysAgo(30), status: 'active' },
+  { id: 'fr_vnt_01', partnerId: 'p_ent_02', fixedFee: 45, percentageFee: 310, effectiveFrom: daysAgo(100), status: 'active' },
 ];
 
-export const MOCK_TRANSACTIONS: Transaction[] = Array.from({ length: 40 }).map((_, i) => {
-  const statusList: TransactionStatus[] = ['succeeded', 'succeeded', 'succeeded', 'failed', 'processing', 'reversed', 'refunded'];
-  const reconStatusList: ReconStatus[] = ['matched', 'matched', 'mismatch', 'pending', 'matched'];
+export const MOCK_TRANSACTIONS: Transaction[] = Array.from({ length: 50 }).map((_, i) => {
+  const statusList: TransactionStatus[] = ['succeeded', 'succeeded', 'succeeded', 'succeeded', 'failed', 'processing', 'reversed', 'refunded'];
+  const reconStatusList: ReconStatus[] = ['matched', 'matched', 'matched', 'mismatch', 'pending', 'matched'];
   
   const status = statusList[i % statusList.length];
   const reconStatus = reconStatusList[i % reconStatusList.length];
   
-  const baseDate = new Date('2024-03-01T12:00:00Z').getTime();
-  const createdAt = new Date(baseDate + (i * 3600000 * 4)).toISOString();
+  // Distribute transactions across the last 48 hours
+  const createdAt = minutesAgo(i * 45 + 10);
   
   return {
-    id: `tx-${2000 + i}`,
-    internalId: `cp-${6000 + i}`,
-    partnerTransactionId: `ptr-${100000 + i}`,
-    processorTransactionId: `proc-${200000 + i}`,
-    idempotencyKey: `idemp-${300000 + i}`,
-    correlationId: `corr-${400000 + i}`,
+    id: `tx_sys_${10000 + i}`,
+    internalId: `CP-${50000 + i}`,
+    partnerTransactionId: `EXT-${200000 + i}`,
+    processorTransactionId: `AUTH-${300000 + i}`,
+    idempotencyKey: `IDEM-${400000 + i}`,
+    correlationId: `TRACE-${500000 + i}`,
     partnerId: MOCK_PARTNERS[i % MOCK_PARTNERS.length].id,
     merchantId: MOCK_MERCHANTS[i % MOCK_MERCHANTS.length].id,
-    processorId: MOCK_PROCESSORS[0].id,
-    amount: 15000 + (i * 1250), 
+    processorId: MOCK_PROCESSORS[i % 2].id,
+    amount: 125000 + (i * 2550), 
     currency: 'USD',
     status,
     reconStatus,
-    paymentMethod: 'visa',
+    paymentMethod: i % 3 === 0 ? 'mastercard' : 'visa',
     createdAt,
     updatedAt: createdAt,
     computedFees: {
-      platformFixed: 15,
+      platformFixed: 25,
       platformBps: 290,
-      partnerCut: 50,
-      processorFee: 250,
-      merchantNet: (15000 + (i * 1250)) - 605 
+      partnerCut: 85,
+      processorFee: 450,
+      merchantNet: (125000 + (i * 2550)) - 850 
     },
     timeline: [
-      { id: `e1-${i}`, status: 'pending', timestamp: createdAt, note: 'Request initiated via API' },
-      { id: `e2-${i}`, status: 'processing', timestamp: createdAt, note: 'Dispatched to SpeedyPay Adapter' },
-      { id: `e3-${i}`, status: status, timestamp: createdAt, note: `Processor response: ${status}` }
+      { id: `ev_01_${i}`, status: 'pending', timestamp: createdAt, note: 'Ingested via Partner API (v2.1)' },
+      { id: `ev_02_${i}`, status: 'processing', timestamp: minutesAgo(i * 45 + 8), note: `Route matched to ${MOCK_PROCESSORS[i % 2].name}` },
+      { id: `ev_03_${i}`, status: status, timestamp: minutesAgo(i * 45 + 7), note: `Processor Handshake: ${status === 'succeeded' ? 'APPROVAL_AUTHORIZED' : 'HARD_DECLINE'}` }
     ]
   };
 });
 
 export const MOCK_WEBHOOKS: WebhookEvent[] = [
-  { id: 'wh-1', correlationId: MOCK_TRANSACTIONS[0].correlationId!, processorId: 'proc1', payload: { event: 'payment.success', amount: 15000 }, receivedAt: '2024-03-21T09:00:00Z', processingStatus: 'completed', retryCount: 0 },
-  { id: 'wh-2', correlationId: 'unknown-corr', processorId: 'proc1', payload: { event: 'payment.failed' }, receivedAt: '2024-03-21T09:15:00Z', processingStatus: 'failed', retryCount: 3, lastError: 'Transaction record not found in internal ledger' },
+  { id: 'wh_ev_01', correlationId: MOCK_TRANSACTIONS[0].correlationId!, processorId: 'proc_sp_v1', payload: { event: 'payment.capture.succeeded', traceId: 'tr_9912' }, receivedAt: minutesAgo(5), processingStatus: 'completed', retryCount: 0 },
+  { id: 'wh_ev_02', correlationId: 'unknown_ref_001', processorId: 'proc_sp_v1', payload: { event: 'payment.failed', reason: 'insufficient_funds' }, receivedAt: minutesAgo(12), processingStatus: 'failed', retryCount: 3, lastError: 'Non-deterministic correlation: missing target forensic record' },
+  { id: 'wh_ev_03', correlationId: MOCK_TRANSACTIONS[1].correlationId!, processorId: 'proc_gd_ach', payload: { event: 'ach.settlement.confirmed' }, receivedAt: hoursAgo(1), processingStatus: 'completed', retryCount: 0 },
 ];
 
 export const MOCK_AUDIT_LOGS: AuditLog[] = [
-  { id: 'log-1', userId: 'u1', userEmail: 'admin@collopay.com', action: 'UPDATE_FEE_RULE', resourceType: 'FeeRule', resourceId: 'fr1', previousValue: { percentageFee: 300 }, newValue: { percentageFee: 290 }, timestamp: '2024-03-21T10:15:00Z', ipAddress: '192.168.1.1' },
-  { id: 'log-2', userId: 'u1', userEmail: 'admin@collopay.com', action: 'REVOKE_API_KEY', resourceType: 'APIKey', resourceId: 'ak-99', previousValue: { status: 'active' }, newValue: { status: 'revoked' }, timestamp: '2024-03-21T11:20:00Z', ipAddress: '192.168.1.1' },
+  { id: 'audit_881', userId: 'usr_ops_01', userEmail: 'm.thorne@collopay.com', action: 'RECALIBRATE_FEE_RULE', resourceType: 'FeeRule', resourceId: 'fr_std_01', previousValue: { percentageFee: 300 }, newValue: { percentageFee: 290 }, timestamp: minutesAgo(45), ipAddress: '10.0.42.12' },
+  { id: 'audit_882', userId: 'usr_ops_01', userEmail: 'm.thorne@collopay.com', action: 'ROTATE_API_CREDENTIAL', resourceType: 'APIKey', resourceId: 'ak_prod_01', previousValue: { status: 'active' }, newValue: { status: 'rotated' }, timestamp: hoursAgo(3), ipAddress: '10.0.42.12' },
+  { id: 'audit_883', userId: 'usr_admin_09', userEmail: 's.chen@collopay.com', action: 'APPROVE_SETTLEMENT_BATCH', resourceType: 'Settlement', resourceId: 'set_batch_991', previousValue: { status: 'pending' }, newValue: { status: 'completed' }, timestamp: hoursAgo(6), ipAddress: '10.0.8.44' },
 ];
 
 export const MOCK_SETTLEMENTS: Settlement[] = [
-  { id: 'set-1', merchantId: 'm1', amount: 845000, currency: 'USD', status: 'completed', initiatedAt: '2024-03-20T08:00:00Z', completedAt: '2024-03-20T14:00:00Z', transactionCount: 142, varianceDetected: false },
-  { id: 'set-2', merchantId: 'm2', amount: 215000, currency: 'USD', status: 'pending', initiatedAt: '2024-03-21T08:00:00Z', transactionCount: 38, varianceDetected: true, reconNote: 'Awaiting webhook confirmation for 1 terminal transaction' },
+  { id: 'set_bt_1002', merchantId: 'm_8821', amount: 4850000, currency: 'USD', status: 'completed', initiatedAt: daysAgo(1), completedAt: hoursAgo(4), transactionCount: 1422, varianceDetected: false },
+  { id: 'set_bt_1003', merchantId: 'm_9932', amount: 1240000, currency: 'USD', status: 'pending', initiatedAt: hoursAgo(2), transactionCount: 385, varianceDetected: true, reconNote: 'Variance check: 2 transactions flagged for amount mismatch vs processor report' },
 ];
 
 export const MOCK_API_KEYS: APIKey[] = [
-  { id: 'ak-1', name: 'Production Main', ownerId: 'p1', ownerType: 'partner', keyPrefix: 'cp_live_pk_8f...', status: 'active', createdAt: '2024-01-20T10:00:00Z', lastUsedAt: '2024-03-21T15:30:00Z' },
-  { id: 'ak-2', name: 'Sandbox Test', ownerId: 'p1', ownerType: 'partner', keyPrefix: 'cp_test_pk_2a...', status: 'active', createdAt: '2024-01-20T10:05:00Z', lastUsedAt: '2024-03-21T14:10:00Z' },
+  { id: 'ak_prod_01', name: 'GFS-Production-Direct', ownerId: 'p_ent_01', ownerType: 'partner', keyPrefix: 'CP_LIVE_8F...', status: 'active', createdAt: daysAgo(120), lastUsedAt: minutesAgo(2) },
+  { id: 'ak_test_01', name: 'GFS-Sandbox-Testing', ownerId: 'p_ent_01', ownerType: 'partner', keyPrefix: 'CP_TEST_2A...', status: 'active', createdAt: daysAgo(120), lastUsedAt: hoursAgo(1) },
 ];

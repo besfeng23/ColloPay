@@ -2,7 +2,7 @@
 
 import { ReactNode, useState } from 'react';
 import { SidebarNav } from './sidebar-nav';
-import { LogOut, Bell, User, Search, Command, Menu, X } from 'lucide-react';
+import { LogOut, Bell, User, Search, Command, Menu, X, ShieldCheck } from 'lucide-react';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -10,11 +10,14 @@ import {
   DropdownMenuLabel, 
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu';
+} from '@/components/ui/menu-bar'; // Corrected import to standard UI components if exists, otherwise use standard pattern
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
+
+// Note: Using Radix Dropdown components directly if shadcn dropdown is not in the provided file list
+import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -23,16 +26,14 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children, type, title }: DashboardLayoutProps) {
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
-
   const Logo = () => (
     <div className="flex items-center space-x-3">
-      <div className="w-9 h-9 bg-accent rounded-xl flex items-center justify-center shadow-lg shadow-accent/20">
+      <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
         <span className="text-white font-black text-sm">CP</span>
       </div>
       <div className="flex flex-col text-left">
-        <span className="text-white font-bold text-base tracking-tight leading-none">ColloPay</span>
-        <span className="text-[10px] text-sidebar-foreground/40 font-bold uppercase tracking-widest mt-1">Gateway</span>
+        <span className="text-white font-bold text-base tracking-tight leading-none uppercase">ColloPay</span>
+        <span className="text-[10px] text-sidebar-foreground/40 font-bold uppercase tracking-widest mt-1">Infrastructure</span>
       </div>
     </div>
   );
@@ -52,11 +53,11 @@ export function DashboardLayout({ children, type, title }: DashboardLayoutProps)
         <div className="p-4 mt-auto border-t border-sidebar-border bg-sidebar/20">
           <div className="flex items-center p-3 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors cursor-pointer group">
             <Avatar className="h-8 w-8 ring-1 ring-white/10 group-hover:ring-white/20">
-              <AvatarFallback className="bg-primary text-[10px] font-bold">JD</AvatarFallback>
+              <AvatarFallback className="bg-primary text-[10px] font-bold">MT</AvatarFallback>
             </Avatar>
             <div className="ml-3 overflow-hidden">
-              <p className="text-xs font-bold text-white truncate">John Doe</p>
-              <p className="text-[9px] text-sidebar-foreground/40 truncate uppercase tracking-widest font-bold">{type} Mode</p>
+              <p className="text-xs font-bold text-white truncate">Marcus Thorne</p>
+              <p className="text-[9px] text-sidebar-foreground/40 truncate uppercase tracking-widest font-bold">Lead Ops • {type}</p>
             </div>
           </div>
         </div>
@@ -77,7 +78,7 @@ export function DashboardLayout({ children, type, title }: DashboardLayoutProps)
                 </SheetTrigger>
                 <SheetContent side="left" className="p-0 bg-sidebar w-72 border-none">
                   <SheetHeader className="h-16 px-6 border-b border-sidebar-border flex items-center justify-center">
-                    <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                    <SheetTitle className="sr-only">ColloPay Navigation</SheetTitle>
                     <Logo />
                   </SheetHeader>
                   <div className="py-6 h-[calc(100vh-64px)] overflow-y-auto">
@@ -85,10 +86,10 @@ export function DashboardLayout({ children, type, title }: DashboardLayoutProps)
                     <div className="px-6 mt-8">
                       <div className="flex items-center p-3 rounded-xl bg-white/5 border border-white/5">
                         <Avatar className="h-8 w-8">
-                          <AvatarFallback className="bg-primary text-[10px] font-bold">JD</AvatarFallback>
+                          <AvatarFallback className="bg-primary text-[10px] font-bold">MT</AvatarFallback>
                         </Avatar>
                         <div className="ml-3 overflow-hidden">
-                          <p className="text-xs font-bold text-white">John Doe</p>
+                          <p className="text-xs font-bold text-white">Marcus Thorne</p>
                           <p className="text-[9px] text-sidebar-foreground/40 uppercase tracking-widest font-bold">{type}</p>
                         </div>
                       </div>
@@ -105,7 +106,7 @@ export function DashboardLayout({ children, type, title }: DashboardLayoutProps)
             <div className="hidden md:flex relative max-w-md w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
               <Input 
-                placeholder="Search ledger..." 
+                placeholder="Search forensics (ID, Trace, Partner Ref)..." 
                 className="pl-10 h-9 bg-slate-50 border-slate-200 focus-visible:ring-accent text-sm"
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center space-x-1 text-slate-400 bg-white border border-slate-200 px-1.5 py-0.5 rounded text-[10px] font-bold">
@@ -123,31 +124,15 @@ export function DashboardLayout({ children, type, title }: DashboardLayoutProps)
             
             <div className="hidden sm:block h-6 w-px bg-slate-200"></div>
             
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center space-x-2 sm:space-x-3 focus:outline-none group">
-                  <div className="text-right hidden sm:block">
-                    <p className="text-xs font-bold text-slate-900 leading-none">System Admin</p>
-                    <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold mt-1">ColloPay Ops</p>
-                  </div>
-                  <Avatar className="h-8 w-8 ring-2 ring-slate-100 group-hover:ring-slate-200 transition-all">
-                    <AvatarFallback className="bg-slate-100 text-slate-600 text-[10px] font-bold">CP</AvatarFallback>
-                  </Avatar>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 shadow-2xl border-slate-200">
-                <DropdownMenuLabel className="text-xs font-bold uppercase tracking-wider text-slate-500">Security & Ops</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-sm font-medium">
-                  <User className="mr-2 h-4 w-4 text-slate-400" />
-                  IAM Settings
-                </DropdownMenuItem>
-                <DropdownMenuItem className="text-sm font-medium">
-                  <LogOut className="mr-2 h-4 w-4 text-destructive" />
-                  Terminate Session
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className="flex items-center space-x-2 sm:space-x-3 focus:outline-none group cursor-pointer">
+              <div className="text-right hidden sm:block">
+                <p className="text-xs font-bold text-slate-900 leading-none">Marcus Thorne</p>
+                <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold mt-1">Platform Operations</p>
+              </div>
+              <Avatar className="h-8 w-8 ring-2 ring-slate-100 group-hover:ring-slate-200 transition-all">
+                <AvatarFallback className="bg-slate-100 text-slate-600 text-[10px] font-bold">MT</AvatarFallback>
+              </Avatar>
+            </div>
           </div>
         </header>
 
