@@ -77,6 +77,7 @@ export function DashboardLayout({ children, type, title }: DashboardLayoutProps)
                 </SheetTrigger>
                 <SheetContent side="left" className="p-0 bg-sidebar w-72 border-none">
                   <SheetHeader className="h-16 px-6 border-b border-sidebar-border flex items-center justify-center">
+                    <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
                     <Logo />
                   </SheetHeader>
                   <div className="py-6 h-[calc(100vh-64px)] overflow-y-auto">
