@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -18,9 +19,10 @@ import {
   Search, 
   Filter, 
   Download, 
-  ChevronRight, 
   MoreVertical,
-  ArrowUpDown
+  ArrowUpDown,
+  History,
+  AlertCircle
 } from 'lucide-react';
 import { 
   DropdownMenu, 
@@ -28,38 +30,38 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
+import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 export default function TransactionsPage() {
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredTransactions = MOCK_TRANSACTIONS.filter(tx => 
     tx.internalId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    tx.externalRef?.toLowerCase().includes(searchTerm.toLowerCase())
+    tx.partnerTransactionId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    tx.processorTransactionId?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    <DashboardLayout type="admin" title="Transaction Ledger">
+    <DashboardLayout type="admin" title="Global Transaction Ledger">
       <div className="space-y-4">
-        {/* Filters Bar */}
+        {/* Advanced Filters Bar */}
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-          <div className="relative w-full md:w-96">
+          <div className="relative w-full md:w-1/2">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
             <Input 
-              placeholder="Search by Internal ID or Processor Ref..." 
+              placeholder="Search by Internal ID, Partner Ref, or Processor ID..." 
               className="pl-10 bg-white border-none shadow-sm focus-visible:ring-accent"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
           <div className="flex items-center space-x-2 w-full md:w-auto">
-            <Button variant="outline" className="bg-white shadow-sm border-none flex-1 md:flex-none">
-              <Filter className="mr-2" size={16} /> Filters
+            <Button variant="outline" className="bg-white shadow-sm border-none">
+              <Filter className="mr-2" size={16} /> Advanced Filters
             </Button>
-            <Button variant="outline" className="bg-white shadow-sm border-none flex-1 md:flex-none">
-              <Download className="mr-2" size={16} /> Export
-            </Button>
-            <Button className="bg-primary text-white shadow-sm flex-1 md:flex-none">
-              Create Transaction
+            <Button variant="outline" className="bg-white shadow-sm border-none">
+              <Download className="mr-2" size={16} /> Export CSV
             </Button>
           </div>
         </div>
@@ -69,46 +71,54 @@ export default function TransactionsPage() {
           <Table>
             <TableHeader className="bg-muted/30">
               <TableRow className="hover:bg-transparent border-none">
-                <TableHead className="w-12"></TableHead>
+                <TableHead className="w-12 text-center h-12">Recon</TableHead>
                 <TableHead className="text-xs uppercase font-bold tracking-wider text-muted-foreground h-12">
                   <div className="flex items-center cursor-pointer hover:text-foreground">
                     Timestamp <ArrowUpDown size={12} className="ml-1" />
                   </div>
                 </TableHead>
-                <TableHead className="text-xs uppercase font-bold tracking-wider text-muted-foreground h-12">Internal ID</TableHead>
-                <TableHead className="text-xs uppercase font-bold tracking-wider text-muted-foreground h-12">Partner</TableHead>
-                <TableHead className="text-xs uppercase font-bold tracking-wider text-muted-foreground h-12">Amount</TableHead>
-                <TableHead className="text-xs uppercase font-bold tracking-wider text-muted-foreground h-12">Processor</TableHead>
+                <TableHead className="text-xs uppercase font-bold tracking-wider text-muted-foreground h-12">Collo ID / Partner Ref</TableHead>
+                <TableHead className="text-xs uppercase font-bold tracking-wider text-muted-foreground h-12">Merchant</TableHead>
+                <TableHead className="text-xs uppercase font-bold tracking-wider text-muted-foreground h-12">Gross Amount</TableHead>
                 <TableHead className="text-xs uppercase font-bold tracking-wider text-muted-foreground h-12">Status</TableHead>
                 <TableHead className="text-xs uppercase font-bold tracking-wider text-muted-foreground h-12 text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredTransactions.map((tx) => (
-                <TableRow key={tx.id} className="group border-b border-muted/20">
-                  <TableCell>
+                <TableRow key={tx.id} className="group border-b border-muted/20 hover:bg-muted/5 transition-colors">
+                  <TableCell className="text-center">
                     <div className="flex justify-center">
-                      <div className={cn(
-                        "w-2 h-2 rounded-full",
-                        tx.status === 'succeeded' ? "bg-green-500" : tx.status === 'failed' ? "bg-destructive" : "bg-blue-400 animate-pulse"
-                      )}></div>
+                      {tx.reconStatus === 'matched' ? (
+                        <div className="w-2 h-2 rounded-full bg-green-500" title="Matched" />
+                      ) : tx.reconStatus === 'mismatch' ? (
+                        <AlertCircle className="w-4 h-4 text-destructive" title="Variance Detected" />
+                      ) : (
+                        <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" title="Pending Recon" />
+                      )}
                     </div>
                   </TableCell>
-                  <TableCell className="text-xs font-medium text-muted-foreground">
-                    {new Date(tx.createdAt).toLocaleDateString()} {new Date(tx.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  <TableCell className="text-xs font-medium text-muted-foreground whitespace-nowrap">
+                    {new Date(tx.createdAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
                   </TableCell>
-                  <TableCell className="font-mono text-xs font-bold text-primary">{tx.internalId}</TableCell>
-                  <TableCell className="text-sm">Collo Pay</TableCell>
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span className="font-mono text-xs font-bold text-primary">{tx.internalId}</span>
+                      <span className="text-[10px] text-muted-foreground truncate max-w-[120px]">
+                        Ref: {tx.partnerTransactionId || 'N/A'}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-sm font-medium">M-{tx.merchantId}</TableCell>
                   <TableCell className="text-sm font-semibold">
                     {(tx.amount / 100).toLocaleString('en-US', { style: 'currency', currency: tx.currency })}
                   </TableCell>
-                  <TableCell className="text-xs font-medium uppercase tracking-tight text-muted-foreground">SpeedyPay</TableCell>
                   <TableCell>
                     <Badge variant={
                       tx.status === 'succeeded' ? 'default' : 
                       tx.status === 'failed' ? 'destructive' : 
                       'secondary'
-                    } className="text-[10px] font-bold uppercase tracking-widest px-2 py-0">
+                    } className="text-[9px] font-bold uppercase tracking-widest px-2 py-0">
                       {tx.status}
                     </Badge>
                   </TableCell>
@@ -120,9 +130,11 @@ export default function TransactionsPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem>View Details</DropdownMenuItem>
-                        <DropdownMenuItem>View Webhooks</DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">Refund Transaction</DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href={`/admin/transactions/${tx.id}`}>View Full Forensic</Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>View Webhook Trace</DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive">Initiate Refund</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -134,8 +146,4 @@ export default function TransactionsPage() {
       </div>
     </DashboardLayout>
   );
-}
-
-function cn(...classes: string[]) {
-  return classes.filter(Boolean).join(' ');
 }

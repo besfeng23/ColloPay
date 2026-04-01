@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -9,12 +10,11 @@ import {
   Shuffle, 
   History, 
   FileBarChart, 
-  Key, 
-  ShieldCheck, 
   Settings, 
   Webhook, 
   CircleDollarSign,
-  Activity
+  ShieldCheck,
+  Scale
 } from 'lucide-react';
 
 interface SidebarNavProps {
@@ -28,24 +28,23 @@ export function SidebarNav({ type }: SidebarNavProps) {
     { name: 'Overview', href: '/admin', icon: LayoutDashboard },
     { name: 'Partners', href: '/admin/partners', icon: Users },
     { name: 'Merchants', href: '/admin/merchants', icon: Store },
-    { name: 'Transactions', href: '/admin/transactions', icon: CreditCard },
-    { name: 'Fee Rules', href: '/admin/fee-rules', icon: CircleDollarSign },
+    { name: 'Global Ledger', href: '/admin/transactions', icon: CreditCard },
+    { name: 'Reconciliation', href: '/admin/reconciliation', icon: Scale },
+    { name: 'Pricing Engine', href: '/admin/fee-rules', icon: CircleDollarSign },
     { name: 'Processors', href: '/admin/processors', icon: Shuffle },
     { name: 'Settlements', href: '/admin/settlements', icon: History },
-    { name: 'Webhooks', href: '/admin/webhooks', icon: Webhook },
+    { name: 'Webhook Trace', href: '/admin/webhooks', icon: Webhook },
     { name: 'Reports', href: '/admin/reports', icon: FileBarChart },
     { name: 'Audit Logs', href: '/admin/audit', icon: ShieldCheck },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
   ];
 
   const partnerLinks = [
-    { name: 'Overview', href: '/partner', icon: LayoutDashboard },
+    { name: 'Dashboard', href: '/partner', icon: LayoutDashboard },
     { name: 'Transactions', href: '/partner/transactions', icon: CreditCard },
     { name: 'Merchants', href: '/partner/merchants', icon: Store },
-    { name: 'Webhooks', href: '/partner/webhooks', icon: Webhook },
     { name: 'Reports', href: '/partner/reports', icon: FileBarChart },
-    { name: 'API Credentials', href: '/partner/api-keys', icon: Key },
-    { name: 'Settings', href: '/partner/settings', icon: Settings },
+    { name: 'API Settings', href: '/partner/settings', icon: Settings },
   ];
 
   const links = type === 'admin' ? adminLinks : partnerLinks;

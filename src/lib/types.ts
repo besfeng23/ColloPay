@@ -1,3 +1,4 @@
+
 export type UserRole = 'SUPER_ADMIN' | 'OPERATIONS_ADMIN' | 'PARTNER_ADMIN' | 'MERCHANT_VIEWER';
 
 export interface Partner {
@@ -7,6 +8,7 @@ export interface Partner {
   status: 'active' | 'suspended' | 'onboarding';
   createdAt: string;
   logoUrl?: string;
+  apiKeyHash?: string;
 }
 
 export interface Merchant {
@@ -26,37 +28,64 @@ export interface Processor {
   status: 'active' | 'maintenance' | 'inactive';
 }
 
-export interface ProcessorMapping {
-  id: string;
-  merchantId: string;
-  processorId: string;
-  priority: number;
-  config: Record<string, any>;
-}
-
 export type TransactionStatus = 'pending' | 'processing' | 'succeeded' | 'failed' | 'reversed' | 'refunded';
+export type ReconStatus = 'matched' | 'mismatch' | 'pending' | 'manual_review';
+
+export interface TransactionTimelineEvent {
+  id: string;
+  status: TransactionStatus;
+  timestamp: string;
+  note?: string;
+  metadata?: Record<string, any>;
+}
 
 export interface Transaction {
   id: string;
-  internalId: string;
-  externalRef?: string;
+  internalId: string; // ColloPay internal
+  partnerTransactionId?: string; // Client-supplied
+  processorTransactionId?: string; // Upstream supplied
+  idempotencyKey?: string;
+  correlationId?: string; // Webhook/Trace ID
   partnerId: string;
   merchantId: string;
   processorId: string;
-  amount: number; // Stored in cents/smallest unit
+  amount: number; // Stored in cents
   currency: string;
   status: TransactionStatus;
-  statusMessage?: string;
+  reconStatus: ReconStatus;
   paymentMethod: string;
   createdAt: string;
   updatedAt: string;
   computedFees: {
-    platformFee: number;
-    processorFee: number;
+    platformFixed: number;
+    platformBps: number;
     partnerCut: number;
+    processorFee: number;
     merchantNet: number;
   };
-  metadata?: Record<string, any>;
+  timeline?: TransactionTimelineEvent[];
+}
+
+export interface FeeRule {
+  id: string;
+  partnerId: string;
+  merchantId?: string; // If present, this rule overrides the partner rule
+  fixedFee: number; // cents
+  percentageFee: number; // basis points (290 = 2.9%)
+  effectiveFrom: string;
+  effectiveTo?: string;
+  status: 'active' | 'archived';
+}
+
+export interface WebhookEvent {
+  id: string;
+  correlationId: string;
+  processorId: string;
+  payload: any;
+  receivedAt: string;
+  processingStatus: 'pending' | 'completed' | 'failed';
+  retryCount: number;
+  lastError?: string;
 }
 
 export interface AuditLog {
@@ -64,7 +93,7 @@ export interface AuditLog {
   userId: string;
   userEmail: string;
   action: string;
-  resourceType: string;
+  resourceType: 'Transaction' | 'Partner' | 'Merchant' | 'FeeRule' | 'Processor';
   resourceId: string;
   previousValue?: any;
   newValue?: any;
@@ -81,4 +110,6 @@ export interface Settlement {
   initiatedAt: string;
   completedAt?: string;
   transactionCount: number;
+  varianceDetected: boolean;
+  reconNote?: string;
 }

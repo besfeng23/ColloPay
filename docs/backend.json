@@ -1,0 +1,104 @@
+
+{
+  "entities": {
+    "Partner": {
+      "title": "Partner",
+      "description": "Enterprise partner managing multiple merchants.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "suspended", "onboarding"] },
+        "apiKeyHash": { "type": "string", "description": "Hashed version of the partner's API key." }
+      },
+      "required": ["id", "name", "status"]
+    },
+    "Merchant": {
+      "title": "Merchant",
+      "description": "Business entity processing payments through a partner.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "partnerId": { "type": "string" },
+        "name": { "type": "string" },
+        "industry": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "under_review", "disabled"] }
+      },
+      "required": ["id", "partnerId", "name", "status"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "The canonical record of a payment lifecycle.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "internalId": { "type": "string" },
+        "partnerTransactionId": { "type": "string" },
+        "processorTransactionId": { "type": "string" },
+        "idempotencyKey": { "type": "string" },
+        "correlationId": { "type": "string" },
+        "amount": { "type": "number" },
+        "currency": { "type": "string" },
+        "status": { "type": "string" },
+        "reconStatus": { "type": "string", "enum": ["matched", "mismatch", "pending"] }
+      },
+      "required": ["id", "internalId", "amount", "currency", "status"]
+    },
+    "FeeRule": {
+      "title": "Fee Rule",
+      "description": "Configuration for platform and partner revenue shares.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "partnerId": { "type": "string" },
+        "merchantId": { "type": "string", "description": "Optional specific merchant override." },
+        "fixedFee": { "type": "number", "description": "Fixed amount in cents." },
+        "percentageFee": { "type": "number", "description": "Percentage basis points (e.g. 290 for 2.9%)." },
+        "effectiveFrom": { "type": "string", "format": "date-time" },
+        "effectiveTo": { "type": "string", "format": "date-time" }
+      }
+    },
+    "AuditLog": {
+      "title": "Audit Log",
+      "description": "Immutable record of sensitive system changes.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "action": { "type": "string" },
+        "previousValue": { "type": "object" },
+        "newValue": { "type": "object" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "auth": {
+    "providers": ["google.com"]
+  },
+  "firestore": {
+    "/partners/{partnerId}": {
+      "schema": "#/backend/entities/Partner",
+      "description": "Top-level partners."
+    },
+    "/merchants/{merchantId}": {
+      "schema": "#/backend/entities/Merchant",
+      "description": "Business entities."
+    },
+    "/transactions/{transactionId}": {
+      "schema": "#/backend/entities/Transaction",
+      "description": "Canonical transaction ledger."
+    },
+    "/transactions/{transactionId}/timeline/{eventId}": {
+      "schema": { "type": "object", "properties": { "status": { "type": "string" }, "timestamp": { "type": "string" }, "reason": { "type": "string" } } },
+      "description": "Immutable history of status changes."
+    },
+    "/feeRules/{ruleId}": {
+      "schema": "#/backend/entities/FeeRule",
+      "description": "Pricing engine configurations."
+    },
+    "/auditLogs/{logId}": {
+      "schema": "#/backend/entities/AuditLog",
+      "description": "System audit trail."
+    }
+  }
+}
