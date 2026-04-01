@@ -1,6 +1,7 @@
 export * from './adapters/processor-adapter';
 export * from './adapters/processor-adapter-registry';
 export * from './adapters/speedypay/speedypay-adapter';
+export * from './controllers/webhook.controller';
 export * from './domain/errors';
 export * from './domain/status-machine';
 export * from './domain/types';

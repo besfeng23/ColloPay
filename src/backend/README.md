@@ -21,9 +21,12 @@ src/backend/
     transaction-orchestrator.service.ts
     webhook-processing.service.ts
     __tests__/
+      webhook-processing.service.test.ts
+    __tests__/
       fee-engine.service.test.ts
       transaction-orchestrator.service.test.ts
   index.ts
+  webhook-ingestion-design.md
 ```
 
 ## Design Notes
@@ -118,3 +121,5 @@ src/backend/
   }
 }
 ```
+  controllers/
+    webhook.controller.ts
