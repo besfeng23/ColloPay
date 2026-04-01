@@ -1,0 +1,25 @@
+# **App Name**: ColloPay Gateway
+
+## Core Features:
+
+- Secure Authentication & Access Control: Robust user authentication with Firebase Auth, supporting distinct roles (Super Admin, Operations Admin, Partner Admin, Merchant Viewer) and managing granular permissions across the platform, enforcing least-privilege access.
+- Partner & Merchant Management: An administrative interface for internal teams to onboard, configure, and manage Partner organizations, their merchants, and sub-merchants. This includes associated payment settings and clearly defined Firestore collections for canonical records.
+- Modular Processor Integration Framework: A robust framework defining a generic interface for payment processors. It includes a SpeedyPay adapter as the initial implementation, ensuring new payment rails can be integrated seamlessly via dedicated adapters without impacting the partner-facing API. Processor configurations are stored in Firestore.
+- Comprehensive Payment Orchestration API: A secure, idempotent, and developer-friendly API for partners to submit payment requests. The platform orchestrates these requests using the processor integration framework, handling server-side validation and ensuring secure API key handling and webhook signature verification. Each transaction supports unique internal, partner, idempotency, processor, and webhook correlation IDs.
+- Advanced Dynamic Fee Engine: A flexible engine to define and apply complex fee structures, supporting percentage, fixed, and hybrid fees. It allows for merchant-specific overrides, partner-specific rules, and effective date-ranged validity for all fee configurations, with changes recorded by the audit trail.
+- Audit-Proof & Detailed Transaction Ledger: An immutable, append-only ledger capturing the full lifecycle of payment requests, transaction records, and settlement records. It stores all computed financial splits, captures processor responses, and maintains a granular status history/timeline for each transaction, with both internal IDs and external processor references clearly defined and canonical data distinguished from computed fields.
+- Executive Reconciliation & Reporting Suite: Comprehensive dashboards for admins and partners, offering real-time transaction monitoring, detailed settlement reports with reconciliation status, variance flags, and a manual review queue for exceptions. Includes visibility into failed webhook retries and daily reconciliation summaries.
+- AI-Powered Custom Report & Insight Tool: An AI tool that enables internal admins to generate specific custom reports, analyze transaction patterns, and query reconciliation data through natural language commands, streamlining data retrieval and insights into operational performance.
+- Granular Audit Trail & Event Logging: An immutable event-style logging system that captures all critical system activities and sensitive admin actions. This includes user action logs with before/after values for changes to fee rules and processor mappings, ensuring full traceability, compliance, and support for rate limiting and abuse protection.
+- Advanced Operational Dashboards & Detail Views: Desktop-first dashboards providing advanced filtering capabilities for transactions, dedicated detail pages with comprehensive timelines for individual transactions and settlements, detailed webhook event logs, and a specific page for managing reconciliation exceptions.
+- Robust Platform Security Framework: An architectural framework enforcing least-privilege access controls, secure API key handling, stringent server-side validation, webhook signature verification, and robust rate limiting and abuse protection mechanisms across the platform, with all sensitive actions logged.
+
+## Style Guidelines:
+
+- Primary Color: A deep, trustworthy corporate blue (#2952A3) that evokes professionalism and stability, contrasting clearly with a light background.
+- Background Color: A subtle, cool-tinted off-white (#F9FAFA) to maintain a clean, crisp, and spacious feel, typical of high-end enterprise applications.
+- Accent Color: A clear, energetic cyan-blue (#52BDE0) used sparingly for interactive elements, calls to action, and indicators to draw attention while maintaining a premium aesthetic.
+- Headline and Body Font: 'Inter', a modern sans-serif typeface, selected for its clean lines, excellent legibility, and versatility across headlines and dense data tables, reinforcing the professional and objective feel.
+- Minimalist, outlined vector icons that are clear, universally recognizable, and consistent in style to ensure a clean, uncluttered interface suited for executive-grade applications.
+- Structured, desktop-first multi-column layouts optimized for dense operational data. Features elegant tables, advanced filtering mechanisms, detail drawers, side panels for in-depth information, and transaction timelines to support comprehensive operational UX.
+- Subtle, deliberate transitions and micro-animations for state changes, data loading, and interactive elements, designed to enhance user experience without distracting from the core financial data or professional aesthetic.
