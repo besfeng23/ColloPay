@@ -1,12 +1,15 @@
 import type { ProcessorAdapterRegistry } from '../adapters/processor-adapter';
 import { DomainError } from '../domain/errors';
 import type { ProcessWebhookCommand, ProcessWebhookResult, ProcessorWebhookEvent } from '../domain/types';
-import { validateProcessorWebhookEvent } from '../domain/validation';
+import { assertWebhookEventFreshness, validateProcessorWebhookEvent } from '../domain/validation';
 import type { TransactionRepository, WebhookEventRepository } from '../ports/repositories';
 import { AuditLogService } from './audit-log.service';
 import { TransactionOrchestrationService } from './transaction-orchestrator.service';
 
 export class WebhookProcessingService {
+  private static readonly MAX_WEBHOOK_AGE_SECONDS = 60 * 15;
+  private static readonly MAX_WEBHOOK_FUTURE_SKEW_SECONDS = 60;
+
   constructor(
     private readonly adapterRegistry: ProcessorAdapterRegistry,
     private readonly webhookEventRepo: WebhookEventRepository,
@@ -18,6 +21,10 @@ export class WebhookProcessingService {
   async process(command: ProcessWebhookCommand | ProcessorWebhookEvent): Promise<ProcessWebhookResult> {
     const normalized = this.normalizeCommand(command);
     const validEvent = validateProcessorWebhookEvent(normalized.event);
+    assertWebhookEventFreshness(validEvent.occurredAt, {
+      maxAgeSeconds: WebhookProcessingService.MAX_WEBHOOK_AGE_SECONDS,
+      maxFutureSkewSeconds: WebhookProcessingService.MAX_WEBHOOK_FUTURE_SKEW_SECONDS,
+    });
     const processingKey = this.toProcessingKey(validEvent.eventId, validEvent.processor);
 
     let eventRecord = await this.webhookEventRepo.findByEventId(validEvent.eventId, validEvent.processor);
@@ -38,7 +45,12 @@ export class WebhookProcessingService {
           outcomeCode: 'duplicate_event',
           correlationStatus: eventRecord.correlationStatus,
         });
-        return { acknowledged: true, status: 'DUPLICATE', ignoredReason: 'duplicate_event', attemptCount: attempt };
+        return {
+          acknowledged: true,
+          status: 'DUPLICATE',
+          ignoredReason: 'duplicate_event',
+          attemptCount: attempt,
+        };
       }
     }
 
