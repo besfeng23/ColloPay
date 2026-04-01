@@ -1,4 +1,3 @@
-
 export type UserRole = 'SUPER_ADMIN' | 'OPERATIONS_ADMIN' | 'PARTNER_ADMIN' | 'MERCHANT_VIEWER';
 
 export interface Partner {
@@ -93,7 +92,7 @@ export interface AuditLog {
   userId: string;
   userEmail: string;
   action: string;
-  resourceType: 'Transaction' | 'Partner' | 'Merchant' | 'FeeRule' | 'Processor';
+  resourceType: 'Transaction' | 'Partner' | 'Merchant' | 'FeeRule' | 'Processor' | 'APIKey';
   resourceId: string;
   previousValue?: any;
   newValue?: any;
@@ -112,4 +111,15 @@ export interface Settlement {
   transactionCount: number;
   varianceDetected: boolean;
   reconNote?: string;
+}
+
+export interface APIKey {
+  id: string;
+  name: string;
+  ownerId: string;
+  ownerType: 'partner' | 'admin';
+  keyPrefix: string;
+  status: 'active' | 'revoked';
+  createdAt: string;
+  lastUsedAt?: string;
 }

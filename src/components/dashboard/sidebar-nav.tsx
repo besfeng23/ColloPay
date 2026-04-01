@@ -14,7 +14,9 @@ import {
   Webhook, 
   CircleDollarSign,
   ShieldCheck,
-  Scale
+  Scale,
+  Key,
+  Zap
 } from 'lucide-react';
 
 interface SidebarNavProps {
@@ -31,20 +33,22 @@ export function SidebarNav({ type }: SidebarNavProps) {
     { name: 'Global Ledger', href: '/admin/transactions', icon: CreditCard },
     { name: 'Reconciliation', href: '/admin/reconciliation', icon: Scale },
     { name: 'Pricing Engine', href: '/admin/fee-rules', icon: CircleDollarSign },
-    { name: 'Processors', href: '/admin/processors', icon: Shuffle },
-    { name: 'Settlements', href: '/admin/settlements', icon: History },
-    { name: 'Webhook Trace', href: '/admin/webhooks', icon: Webhook },
+    { name: 'Fund Settlements', href: '/admin/settlements', icon: History },
+    { name: 'Webhook Logs', href: '/admin/webhooks', icon: Webhook },
     { name: 'Reports', href: '/admin/reports', icon: FileBarChart },
-    { name: 'Audit Logs', href: '/admin/audit', icon: ShieldCheck },
+    { name: 'Audit Trail', href: '/admin/audit', icon: ShieldCheck },
+    { name: 'API Credentials', href: '/admin/api-keys', icon: Key },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
   ];
 
   const partnerLinks = [
     { name: 'Dashboard', href: '/partner', icon: LayoutDashboard },
+    { name: 'Sandbox: Pay', href: '/partner/payments/new', icon: Zap },
     { name: 'Transactions', href: '/partner/transactions', icon: CreditCard },
     { name: 'Merchants', href: '/partner/merchants', icon: Store },
+    { name: 'Webhooks', href: '/partner/webhooks', icon: Webhook },
     { name: 'Reports', href: '/partner/reports', icon: FileBarChart },
-    { name: 'API Settings', href: '/partner/settings', icon: Settings },
+    { name: 'API Access', href: '/partner/settings', icon: Key },
   ];
 
   const links = type === 'admin' ? adminLinks : partnerLinks;
@@ -60,7 +64,7 @@ export function SidebarNav({ type }: SidebarNavProps) {
             className={cn(
               "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
               isActive 
-                ? "bg-sidebar-accent text-sidebar-foreground" 
+                ? "bg-sidebar-accent text-sidebar-foreground shadow-sm" 
                 : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
             )}
           >

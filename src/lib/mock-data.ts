@@ -1,5 +1,4 @@
-
-import { Partner, Merchant, Transaction, Processor, Settlement, AuditLog, FeeRule, WebhookEvent, TransactionStatus, ReconStatus } from './types';
+import { Partner, Merchant, Transaction, Processor, Settlement, AuditLog, FeeRule, WebhookEvent, TransactionStatus, ReconStatus, APIKey } from './types';
 
 export const MOCK_PARTNERS: Partner[] = [
   { id: 'p1', name: 'ColloPay Enterprise', contactEmail: 'ops@collo.com', status: 'active', createdAt: '2024-01-15T10:00:00Z' },
@@ -33,7 +32,6 @@ export const MOCK_TRANSACTIONS: Transaction[] = Array.from({ length: 40 }).map((
   const status = statusList[i % statusList.length];
   const reconStatus = reconStatusList[i % reconStatusList.length];
   
-  // Deterministic creation date: Starts March 1st, 2024, adds 4 hours per index
   const baseDate = new Date('2024-03-01T12:00:00Z').getTime();
   const createdAt = new Date(baseDate + (i * 3600000 * 4)).toISOString();
   
@@ -47,7 +45,7 @@ export const MOCK_TRANSACTIONS: Transaction[] = Array.from({ length: 40 }).map((
     partnerId: MOCK_PARTNERS[i % MOCK_PARTNERS.length].id,
     merchantId: MOCK_MERCHANTS[i % MOCK_MERCHANTS.length].id,
     processorId: MOCK_PROCESSORS[0].id,
-    amount: 15000 + (i * 1250), // Deterministic amount: $150.00, $162.50, $175.00...
+    amount: 15000 + (i * 1250), 
     currency: 'USD',
     status,
     reconStatus,
@@ -59,26 +57,32 @@ export const MOCK_TRANSACTIONS: Transaction[] = Array.from({ length: 40 }).map((
       platformBps: 290,
       partnerCut: 50,
       processorFee: 250,
-      merchantNet: 0
+      merchantNet: (15000 + (i * 1250)) - 605 
     },
     timeline: [
-      { id: `e1-${i}`, status: 'pending', timestamp: createdAt, note: 'Request initiated' },
-      { id: `e2-${i}`, status: 'processing', timestamp: createdAt, note: 'Sent to processor' },
-      { id: `e3-${i}`, status: status, timestamp: createdAt, note: 'Final status reached' }
+      { id: `e1-${i}`, status: 'pending', timestamp: createdAt, note: 'Request initiated via API' },
+      { id: `e2-${i}`, status: 'processing', timestamp: createdAt, note: 'Dispatched to SpeedyPay Adapter' },
+      { id: `e3-${i}`, status: status, timestamp: createdAt, note: `Processor response: ${status}` }
     ]
   };
 });
 
 export const MOCK_WEBHOOKS: WebhookEvent[] = [
-  { id: 'wh-1', correlationId: MOCK_TRANSACTIONS[0].correlationId!, processorId: 'proc1', payload: { event: 'payment.success' }, receivedAt: '2024-03-21T09:00:00Z', processingStatus: 'completed', retryCount: 0 },
-  { id: 'wh-2', correlationId: 'unknown-corr', processorId: 'proc1', payload: { event: 'payment.failed' }, receivedAt: '2024-03-21T09:15:00Z', processingStatus: 'failed', retryCount: 3, lastError: 'Transaction not found' },
+  { id: 'wh-1', correlationId: MOCK_TRANSACTIONS[0].correlationId!, processorId: 'proc1', payload: { event: 'payment.success', amount: 15000 }, receivedAt: '2024-03-21T09:00:00Z', processingStatus: 'completed', retryCount: 0 },
+  { id: 'wh-2', correlationId: 'unknown-corr', processorId: 'proc1', payload: { event: 'payment.failed' }, receivedAt: '2024-03-21T09:15:00Z', processingStatus: 'failed', retryCount: 3, lastError: 'Transaction record not found in internal ledger' },
 ];
 
 export const MOCK_AUDIT_LOGS: AuditLog[] = [
   { id: 'log-1', userId: 'u1', userEmail: 'admin@collopay.com', action: 'UPDATE_FEE_RULE', resourceType: 'FeeRule', resourceId: 'fr1', previousValue: { percentageFee: 300 }, newValue: { percentageFee: 290 }, timestamp: '2024-03-21T10:15:00Z', ipAddress: '192.168.1.1' },
+  { id: 'log-2', userId: 'u1', userEmail: 'admin@collopay.com', action: 'REVOKE_API_KEY', resourceType: 'APIKey', resourceId: 'ak-99', previousValue: { status: 'active' }, newValue: { status: 'revoked' }, timestamp: '2024-03-21T11:20:00Z', ipAddress: '192.168.1.1' },
 ];
 
 export const MOCK_SETTLEMENTS: Settlement[] = [
   { id: 'set-1', merchantId: 'm1', amount: 845000, currency: 'USD', status: 'completed', initiatedAt: '2024-03-20T08:00:00Z', completedAt: '2024-03-20T14:00:00Z', transactionCount: 142, varianceDetected: false },
-  { id: 'set-2', merchantId: 'm2', amount: 215000, currency: 'USD', status: 'pending', initiatedAt: '2024-03-21T08:00:00Z', transactionCount: 38, varianceDetected: true, reconNote: 'Awaiting webhook for 1 transaction' },
+  { id: 'set-2', merchantId: 'm2', amount: 215000, currency: 'USD', status: 'pending', initiatedAt: '2024-03-21T08:00:00Z', transactionCount: 38, varianceDetected: true, reconNote: 'Awaiting webhook confirmation for 1 terminal transaction' },
+];
+
+export const MOCK_API_KEYS: APIKey[] = [
+  { id: 'ak-1', name: 'Production Main', ownerId: 'p1', ownerType: 'partner', keyPrefix: 'cp_live_pk_8f...', status: 'active', createdAt: '2024-01-20T10:00:00Z', lastUsedAt: '2024-03-21T15:30:00Z' },
+  { id: 'ak-2', name: 'Sandbox Test', ownerId: 'p1', ownerType: 'partner', keyPrefix: 'cp_test_pk_2a...', status: 'active', createdAt: '2024-01-20T10:05:00Z', lastUsedAt: '2024-03-21T14:10:00Z' },
 ];
