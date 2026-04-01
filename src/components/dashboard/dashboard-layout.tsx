@@ -1,23 +1,14 @@
+
 "use client";
 
 import { ReactNode, useState } from 'react';
 import { SidebarNav } from './sidebar-nav';
 import { LogOut, Bell, User, Search, Command, Menu, X, ShieldCheck } from 'lucide-react';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuLabel, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
-} from '@/components/ui/menu-bar'; // Corrected import to standard UI components if exists, otherwise use standard pattern
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-
-// Note: Using Radix Dropdown components directly if shadcn dropdown is not in the provided file list
-import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
+import { useRouter } from 'next/navigation';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -26,6 +17,16 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children, type, title }: DashboardLayoutProps) {
+  const router = useRouter();
+  const [searchValue, setSearchValue] = useState('');
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (type === 'admin' && searchValue.trim()) {
+      router.push(`/admin/explorer?q=${encodeURIComponent(searchValue)}`);
+    }
+  };
+
   const Logo = () => (
     <div className="flex items-center space-x-3">
       <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
@@ -103,17 +104,19 @@ export function DashboardLayout({ children, type, title }: DashboardLayoutProps)
               {title || 'Dashboard'}
             </h1>
             
-            <div className="hidden md:flex relative max-w-md w-full">
+            <form onSubmit={handleSearch} className="hidden md:flex relative max-w-md w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
               <Input 
                 placeholder="Search forensics (ID, Trace, Partner Ref)..." 
                 className="pl-10 h-9 bg-slate-50 border-slate-200 focus-visible:ring-accent text-sm"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center space-x-1 text-slate-400 bg-white border border-slate-200 px-1.5 py-0.5 rounded text-[10px] font-bold">
                 <Command size={10} />
                 <span>K</span>
               </div>
-            </div>
+            </form>
           </div>
           
           <div className="flex items-center space-x-3 sm:space-x-5">

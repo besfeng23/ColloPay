@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -14,7 +15,9 @@ import {
   AlertTriangle,
   Scale,
   ArrowUpRight,
-  Webhook
+  Webhook,
+  BarChart3,
+  TrendingUp
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { 
@@ -29,6 +32,22 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MOCK_TRANSACTIONS, MOCK_AUDIT_LOGS } from '@/lib/mock-data';
 import Link from 'next/link';
+import { 
+  ChartContainer, 
+  ChartTooltip, 
+  ChartTooltipContent 
+} from "@/components/ui/chart";
+import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid } from "recharts";
+
+const chartData = [
+  { hour: "00:00", volume: 4200000 },
+  { hour: "04:00", volume: 3100000 },
+  { hour: "08:00", volume: 8900000 },
+  { hour: "12:00", volume: 12400000 },
+  { hour: "16:00", volume: 15800000 },
+  { hour: "20:00", volume: 11200000 },
+  { hour: "23:59", volume: 9400000 },
+];
 
 export default function AdminDashboard() {
   const [mounted, setMounted] = useState(false);
@@ -116,62 +135,57 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-        {/* Real-time Ledger Preview */}
+        {/* Main Chart Section */}
         <Card className="lg:col-span-2 border-none shadow-sm bg-white overflow-hidden">
-          <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-slate-50/30 border-b p-4 sm:p-6 gap-4">
+          <CardHeader className="flex flex-row items-center justify-between bg-slate-50/30 border-b p-6">
             <div>
-              <CardTitle className="text-base font-black text-slate-900">Live Infrastructure Stream</CardTitle>
-              <CardDescription className="text-xs font-medium text-slate-500">Real-time visibility into global financial flows</CardDescription>
+              <CardTitle className="text-base font-black text-slate-900">Infrastructure Volume Trend</CardTitle>
+              <CardDescription className="text-xs font-medium text-slate-500">24-hour aggregate processing volume (PHP)</CardDescription>
             </div>
-            <Link href="/admin/transactions" className="text-primary hover:underline text-[11px] font-black uppercase tracking-widest flex items-center">
-              View Global Ledger <ArrowRight size={14} className="ml-1.5" />
-            </Link>
+            <div className="flex items-center text-[10px] font-black text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-100">
+              <TrendingUp size={14} className="mr-2" />
+              +8.2% vs Yesterday
+            </div>
           </CardHeader>
-          <CardContent className="p-0 overflow-x-auto">
-            <Table>
-              <TableHeader className="bg-slate-50/20">
-                <TableRow className="hover:bg-transparent border-none">
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest pl-8 h-12">ColloPay Trace</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest h-12">Merchant Entity</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest h-12">Amount</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest h-12">Status</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-right pr-8 h-12">Time</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentTransactions.map((tx) => (
-                  <TableRow key={tx.id} className="group border-b border-slate-50 h-14 hover:bg-slate-50/50 transition-colors">
-                    <TableCell className="pl-8 font-mono text-[11px] font-bold text-primary">{tx.internalId}</TableCell>
-                    <TableCell className="text-xs font-bold text-slate-700">M-{tx.merchantId}</TableCell>
-                    <TableCell className="text-xs font-black text-slate-900">
-                      {mounted 
-                        ? (tx.amount / 100).toLocaleString('en-PH', { style: 'currency', currency: tx.currency })
-                        : '...'
-                      }
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={
-                        tx.status === 'succeeded' ? 'default' : 
-                        tx.status === 'failed' ? 'destructive' : 
-                        'secondary'
-                      } className="text-[9px] font-black uppercase tracking-widest px-2 py-0">
-                        {tx.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right pr-8 text-[11px] font-bold text-slate-400">
-                      {mounted 
-                        ? new Date(tx.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                        : '...'
-                      }
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+          <CardContent className="p-6">
+            <div className="h-[300px] w-full">
+              {mounted && (
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorVolume" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.1}/>
+                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis 
+                      dataKey="hour" 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }}
+                      dy={10}
+                    />
+                    <YAxis 
+                      hide 
+                    />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Area 
+                      type="monotone" 
+                      dataKey="volume" 
+                      stroke="hsl(var(--primary))" 
+                      strokeWidth={3}
+                      fillOpacity={1} 
+                      fill="url(#colorVolume)" 
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              )}
+            </div>
           </CardContent>
         </Card>
 
-        {/* Operational Sidebars */}
+        {/* Real-time operational sidebars */}
         <div className="space-y-6 sm:space-y-8">
           <Card className="border-none shadow-sm bg-white overflow-hidden">
             <CardHeader className="bg-slate-50/30 border-b p-4 sm:p-6">
@@ -222,6 +236,61 @@ export default function AdminDashboard() {
           </Card>
         </div>
       </div>
+
+      {/* Global Ledger Preview */}
+      <Card className="border-none shadow-sm bg-white overflow-hidden mt-8">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-slate-50/30 border-b p-4 sm:p-6 gap-4">
+          <div>
+            <CardTitle className="text-base font-black text-slate-900">Live Infrastructure Stream</CardTitle>
+            <CardDescription className="text-xs font-medium text-slate-500">Real-time visibility into global financial flows</CardDescription>
+          </div>
+          <Link href="/admin/transactions" className="text-primary hover:underline text-[11px] font-black uppercase tracking-widest flex items-center">
+            View Global Ledger <ArrowRight size={14} className="ml-1.5" />
+          </Link>
+        </CardHeader>
+        <CardContent className="p-0 overflow-x-auto">
+          <Table>
+            <TableHeader className="bg-slate-50/20">
+              <TableRow className="hover:bg-transparent border-none">
+                <TableHead className="text-[10px] font-black uppercase tracking-widest pl-8 h-12">ColloPay Trace</TableHead>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest h-12">Merchant Entity</TableHead>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest h-12">Amount</TableHead>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest h-12">Status</TableHead>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-right pr-8 h-12">Time</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {recentTransactions.map((tx) => (
+                <TableRow key={tx.id} className="group border-b border-slate-50 h-14 hover:bg-slate-50/50 transition-colors">
+                  <TableCell className="pl-8 font-mono text-[11px] font-bold text-primary">{tx.internalId}</TableCell>
+                  <TableCell className="text-xs font-bold text-slate-700">M-{tx.merchantId}</TableCell>
+                  <TableCell className="text-xs font-black text-slate-900">
+                    {mounted 
+                      ? (tx.amount / 100).toLocaleString('en-PH', { style: 'currency', currency: tx.currency })
+                      : '...'
+                    }
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={
+                      tx.status === 'succeeded' ? 'default' : 
+                      tx.status === 'failed' ? 'destructive' : 
+                      'secondary'
+                    } className="text-[9px] font-black uppercase tracking-widest px-2 py-0">
+                      {tx.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right pr-8 text-[11px] font-bold text-slate-400">
+                    {mounted 
+                      ? new Date(tx.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                      : '...'
+                    }
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </DashboardLayout>
   );
 }
