@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { MOCK_MERCHANTS } from '@/lib/mock-data';
-import { Zap, CreditCard, ShieldCheck, Loader2, CheckCircle2, Terminal, Split } from 'lucide-react';
+import { Zap, CreditCard, ShieldCheck, Loader2, CheckCircle2, Terminal, Split, Wallet } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 export default function CreatePaymentPage() {
