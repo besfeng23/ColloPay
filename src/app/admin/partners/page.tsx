@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/dashboard/dashboard-layout';
 import { MOCK_PARTNERS } from '@/lib/mock-data';
 import { 
@@ -22,6 +23,9 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 
 export default function PartnersPage() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   return (
     <DashboardLayout type="admin" title="Partner Ecosystem">
       <div className="flex justify-between items-center mb-6">
@@ -50,7 +54,7 @@ export default function PartnersPage() {
                     <Mail size={14} className="mr-2" /> {partner.contactEmail}
                   </div>
                   <div className="flex items-center text-xs text-muted-foreground">
-                    <Calendar size={14} className="mr-2" /> Onboarded {new Date(partner.createdAt).toLocaleDateString()}
+                    <Calendar size={14} className="mr-2" /> Onboarded {mounted ? new Date(partner.createdAt).toLocaleDateString() : '...'}
                   </div>
                 </div>
               </div>
