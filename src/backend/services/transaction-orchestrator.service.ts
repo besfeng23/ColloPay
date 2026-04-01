@@ -52,13 +52,20 @@ export class TransactionOrchestrationService {
       async (): Promise<PartnerPaymentResponse> => {
         const now = new Date().toISOString();
         const feeBreakdown = this.feeEngine.calculate(validRequest.amount);
+        const netAmountMinor = validRequest.amount.amountMinor - feeBreakdown.totalFeeMinor;
+        if (netAmountMinor < 0) {
+          throw new DomainError('Computed net amount cannot be negative.', 'VALIDATION_ERROR', {
+            amountMinor: validRequest.amount.amountMinor,
+            totalFeeMinor: feeBreakdown.totalFeeMinor,
+          });
+        }
         const transaction: Transaction = {
           id: randomUUID(),
           externalReference: validRequest.externalReference,
           processor: validRequest.processor,
           merchant: validRequest.merchant,
           amount: validRequest.amount,
-          netAmountMinor: validRequest.amount.amountMinor - feeBreakdown.totalFeeMinor,
+          netAmountMinor,
           feeBreakdown,
           status: 'INITIATED',
           metadata: validRequest.metadata,
@@ -133,7 +140,11 @@ export class TransactionOrchestrationService {
   async applyStatusUpdate(transactionId: string, nextStatus: TransactionStatus, reason: string, actor: string): Promise<void> {
     const existing = await this.transactionRepo.getById(transactionId);
     if (!existing) {
-      throw new Error(`Transaction ${transactionId} not found.`);
+      throw new DomainError('Transaction not found for status update.', 'NOT_FOUND_ERROR', {
+        transactionId,
+        nextStatus,
+        reason,
+      });
     }
 
     await this.transitionTransactionStatus(existing, nextStatus, reason, actor);

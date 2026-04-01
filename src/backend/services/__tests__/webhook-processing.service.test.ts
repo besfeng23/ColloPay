@@ -271,3 +271,30 @@ test('WebhookProcessingService marks out-of-order updates as FAILED without retr
   assert.equal(stored.correlationStatus, 'CORRELATED');
   assert.match(stored.processingError ?? '', /Invalid transaction transition/);
 });
+
+test('WebhookProcessingService rejects stale webhook events outside replay window', async () => {
+  const webhookRepo = new InMemoryWebhookEventRepo();
+  const transactionRepo = new InMemoryTransactionRepo(new Map<string, Transaction>());
+  const service = new WebhookProcessingService(
+    new InMemoryProcessorAdapterRegistry([new FakeAdapter()]),
+    webhookRepo,
+    transactionRepo,
+    new FakeTransactionOrchestrationService(transactionRepo) as never,
+    new AuditLogService(new InMemoryAuditRepo()),
+  );
+
+  await assert.rejects(
+    () =>
+      service.process(
+        buildWebhookEvent({
+          eventId: 'evt_stale',
+          occurredAt: new Date(Date.now() - 30 * 60 * 1_000).toISOString(),
+        }),
+      ),
+    (error: unknown) => {
+      assert.equal((error as { name: string }).name, 'DomainError');
+      assert.match((error as Error).message, /replay window/i);
+      return true;
+    },
+  );
+});

@@ -131,6 +131,38 @@ export function validateProcessorWebhookEvent(input: ProcessorWebhookEvent): Pro
   return parsed.data as ProcessorWebhookEvent;
 }
 
+export function assertWebhookEventFreshness(
+  occurredAt: string,
+  options: {
+    maxAgeSeconds: number;
+    maxFutureSkewSeconds: number;
+    now?: Date;
+  },
+): void {
+  const eventTime = Date.parse(occurredAt);
+  if (Number.isNaN(eventTime)) {
+    throw new DomainError('Webhook occurredAt is not a valid timestamp.', 'VALIDATION_ERROR', { occurredAt });
+  }
+
+  const nowEpoch = (options.now ?? new Date()).getTime();
+  const ageSeconds = (nowEpoch - eventTime) / 1_000;
+  if (ageSeconds > options.maxAgeSeconds) {
+    throw new DomainError('Webhook event is outside allowed replay window.', 'VALIDATION_ERROR', {
+      occurredAt,
+      ageSeconds,
+      maxAgeSeconds: options.maxAgeSeconds,
+    });
+  }
+
+  if (ageSeconds < -options.maxFutureSkewSeconds) {
+    throw new DomainError('Webhook event timestamp is too far in the future.', 'VALIDATION_ERROR', {
+      occurredAt,
+      ageSeconds,
+      maxFutureSkewSeconds: options.maxFutureSkewSeconds,
+    });
+  }
+}
+
 function validateOrThrow<T>(schema: z.ZodType<T>, input: T, message: string): T {
   const parsed = schema.safeParse(input);
   if (!parsed.success) {

@@ -221,3 +221,39 @@ test('TransactionOrchestrationService rejects unmapped merchant processor pair',
     },
   );
 });
+
+test('TransactionOrchestrationService rejects transaction when computed net amount is negative', async () => {
+  const transactionRepo = new InMemoryTransactionRepo();
+  const historyRepo = new InMemoryStatusHistoryRepo();
+  const idempotencyRepo = new InMemoryIdempotencyRepo();
+  const auditRepo = new InMemoryAuditRepo();
+  const mappingRepo = new InMemoryMerchantMappingRepo();
+
+  const service = new TransactionOrchestrationService(
+    transactionRepo,
+    historyRepo,
+    new FeeEngineService({
+      getPolicy: () => ({ processorBasisPoints: 0, platformBasisPoints: 0, flatFeeMinor: 5_000 }),
+    }),
+    new InMemoryProcessorAdapterRegistry([new FakeSpeedyPayAdapter()]),
+    mappingRepo,
+    new IdempotencyService(idempotencyRepo),
+    new AuditLogService(auditRepo),
+  );
+
+  await assert.rejects(
+    () =>
+      service.createPartnerPayment({
+        idempotencyKey: 'idem-key-negative-net',
+        externalReference: 'order-negative-net',
+        merchant: { merchantId: 'm1', partnerId: 'p1' },
+        amount: { amountMinor: 100, currency: 'USD' },
+        processor: 'SPEEDYPAY',
+      }),
+    (error: unknown) => {
+      assert.equal((error as { name: string }).name, 'DomainError');
+      assert.match((error as Error).message, /(net amount cannot be negative|net amount would be zero or negative)/i);
+      return true;
+    },
+  );
+});
