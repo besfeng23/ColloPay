@@ -1,5 +1,5 @@
 
-import { Partner, Merchant, Transaction, Processor, Settlement, AuditLog, FeeRule, WebhookEvent } from './types';
+import { Partner, Merchant, Transaction, Processor, Settlement, AuditLog, FeeRule, WebhookEvent, TransactionStatus, ReconStatus } from './types';
 
 export const MOCK_PARTNERS: Partner[] = [
   { id: 'p1', name: 'ColloPay Enterprise', contactEmail: 'ops@collo.com', status: 'active', createdAt: '2024-01-15T10:00:00Z' },
@@ -27,26 +27,33 @@ export const MOCK_FEE_RULES: FeeRule[] = [
 ];
 
 export const MOCK_TRANSACTIONS: Transaction[] = Array.from({ length: 40 }).map((_, i) => {
-  const status: any = ['succeeded', 'succeeded', 'succeeded', 'failed', 'processing', 'reversed', 'refunded'][Math.floor(Math.random() * 7)];
-  const reconStatus: any = ['matched', 'matched', 'mismatch', 'pending', 'matched'][Math.floor(Math.random() * 5)];
+  const statusList: TransactionStatus[] = ['succeeded', 'succeeded', 'succeeded', 'failed', 'processing', 'reversed', 'refunded'];
+  const reconStatusList: ReconStatus[] = ['matched', 'matched', 'mismatch', 'pending', 'matched'];
+  
+  const status = statusList[i % statusList.length];
+  const reconStatus = reconStatusList[i % reconStatusList.length];
+  
+  // Deterministic creation date: Starts March 1st, 2024, adds 4 hours per index
+  const baseDate = new Date('2024-03-01T12:00:00Z').getTime();
+  const createdAt = new Date(baseDate + (i * 3600000 * 4)).toISOString();
   
   return {
     id: `tx-${2000 + i}`,
     internalId: `cp-${6000 + i}`,
-    partnerTransactionId: `ptr-${Math.floor(Math.random() * 100000)}`,
-    processorTransactionId: `proc-${Math.floor(Math.random() * 100000)}`,
-    idempotencyKey: `idemp-${Math.random().toString(36).substring(7)}`,
-    correlationId: `corr-${Math.random().toString(36).substring(7)}`,
+    partnerTransactionId: `ptr-${100000 + i}`,
+    processorTransactionId: `proc-${200000 + i}`,
+    idempotencyKey: `idemp-${300000 + i}`,
+    correlationId: `corr-${400000 + i}`,
     partnerId: MOCK_PARTNERS[i % MOCK_PARTNERS.length].id,
     merchantId: MOCK_MERCHANTS[i % MOCK_MERCHANTS.length].id,
     processorId: MOCK_PROCESSORS[0].id,
-    amount: Math.floor(Math.random() * 100000) + 1000,
+    amount: 15000 + (i * 1250), // Deterministic amount: $150.00, $162.50, $175.00...
     currency: 'USD',
     status,
     reconStatus,
     paymentMethod: 'visa',
-    createdAt: new Date(Date.now() - Math.random() * 15 * 24 * 60 * 60 * 1000).toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt,
+    updatedAt: createdAt,
     computedFees: {
       platformFixed: 15,
       platformBps: 290,
@@ -55,9 +62,9 @@ export const MOCK_TRANSACTIONS: Transaction[] = Array.from({ length: 40 }).map((
       merchantNet: 0
     },
     timeline: [
-      { id: 'e1', status: 'pending', timestamp: '2024-03-20T10:00:00Z', note: 'Request initiated' },
-      { id: 'e2', status: 'processing', timestamp: '2024-03-20T10:00:05Z', note: 'Sent to processor' },
-      { id: 'e3', status: status, timestamp: '2024-03-20T10:00:15Z', note: 'Final status reached' }
+      { id: `e1-${i}`, status: 'pending', timestamp: createdAt, note: 'Request initiated' },
+      { id: `e2-${i}`, status: 'processing', timestamp: createdAt, note: 'Sent to processor' },
+      { id: `e3-${i}`, status: status, timestamp: createdAt, note: 'Final status reached' }
     ]
   };
 });

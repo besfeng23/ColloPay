@@ -1,5 +1,7 @@
+
 "use client";
 
+import { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/dashboard/dashboard-layout';
 import { MOCK_MERCHANTS } from '@/lib/mock-data';
 import { 
@@ -13,9 +15,15 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Filter, ArrowUpDown, Store } from 'lucide-react';
+import { Search, Filter, Store } from 'lucide-react';
 
 export default function MerchantsPage() {
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <DashboardLayout type="admin" title="Merchant Registry">
       <div className="space-y-6">
@@ -67,7 +75,7 @@ export default function MerchantsPage() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">
-                    {new Date(merchant.createdAt).toLocaleDateString()}
+                    {mounted ? new Date(merchant.createdAt).toLocaleDateString() : '...'}
                   </TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="sm" className="font-bold uppercase text-[10px] tracking-widest text-accent">

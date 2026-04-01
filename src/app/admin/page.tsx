@@ -1,5 +1,7 @@
+
 "use client";
 
+import { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/dashboard/dashboard-layout';
 import { StatCard } from '@/components/dashboard/stat-card';
 import { 
@@ -24,6 +26,12 @@ import { MOCK_TRANSACTIONS, MOCK_AUDIT_LOGS } from '@/lib/mock-data';
 import Link from 'next/link';
 
 export default function AdminDashboard() {
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const recentTransactions = MOCK_TRANSACTIONS.slice(0, 5);
   
   return (
@@ -89,7 +97,10 @@ export default function AdminDashboard() {
                     <TableCell className="font-mono text-xs">{tx.internalId}</TableCell>
                     <TableCell className="text-sm font-medium">Merchant {tx.merchantId}</TableCell>
                     <TableCell className="text-sm font-semibold">
-                      {(tx.amount / 100).toLocaleString('en-US', { style: 'currency', currency: tx.currency })}
+                      {mounted 
+                        ? (tx.amount / 100).toLocaleString('en-US', { style: 'currency', currency: tx.currency })
+                        : '...'
+                      }
                     </TableCell>
                     <TableCell>
                       <Badge variant={
@@ -101,7 +112,10 @@ export default function AdminDashboard() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right text-xs text-muted-foreground">
-                      {new Date(tx.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {mounted 
+                        ? new Date(tx.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        : '...'
+                      }
                     </TableCell>
                   </TableRow>
                 ))}
@@ -127,7 +141,7 @@ export default function AdminDashboard() {
                   <p className="text-sm font-medium text-foreground">{log.action}</p>
                   <p className="text-xs text-muted-foreground truncate max-w-[200px]">{log.userEmail}</p>
                   <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-wider font-bold">
-                    {new Date(log.timestamp).toLocaleString()}
+                    {mounted ? new Date(log.timestamp).toLocaleString() : '...'}
                   </p>
                 </div>
               </div>
