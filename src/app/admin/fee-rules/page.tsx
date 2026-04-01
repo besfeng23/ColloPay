@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -14,7 +15,19 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Plus, Edit3, CircleDollarSign, ShieldCheck, History } from 'lucide-react';
+import { Plus, Edit3, CircleDollarSign, ShieldCheck, History, Lock } from 'lucide-react';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogFooter, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger 
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function FeeRulesPage() {
   const [mounted, setMounted] = useState(false);
@@ -29,9 +42,62 @@ export default function FeeRulesPage() {
             All changes are logged in the audit trail and require dual-authorization for production rotation.
           </p>
         </div>
-        <Button className="bg-primary text-white font-black text-[11px] uppercase tracking-widest h-10 px-6">
-          <Plus size={16} className="mr-2" /> Define Fee Rule
-        </Button>
+        
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button className="bg-primary text-white font-black text-[11px] uppercase tracking-widest h-10 px-6">
+              <Plus size={16} className="mr-2" /> Define Fee Rule
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[525px]">
+            <DialogHeader>
+              <DialogTitle className="text-lg font-black uppercase tracking-tight">New Infrastructure Pricing Rule</DialogTitle>
+              <DialogDescription className="text-xs font-medium">
+                Identify the scope and parameters for this financial rule. Changes require secondary signing.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-6 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest">Rule Scope</Label>
+                  <Select defaultValue="partner">
+                    <SelectTrigger className="h-10 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="global">Global System</SelectItem>
+                      <SelectItem value="partner">Partner Specific</SelectItem>
+                      <SelectItem value="merchant">Merchant Override</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest">Target Entity</Label>
+                  <Input placeholder="Search ID..." className="h-10 text-xs" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest">Fixed Fee (USD Cents)</Label>
+                  <Input defaultValue="25" type="number" className="h-10 text-xs" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest">Basis Points (bps)</Label>
+                  <Input defaultValue="290" type="number" className="h-10 text-xs" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest">Effective Date</Label>
+                <Input type="date" className="h-10 text-xs" />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="submit" className="w-full bg-primary text-white font-black uppercase tracking-widest h-11 text-[10px]">
+                Stage Rule for Approval
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="grid grid-cols-1 gap-8">
@@ -105,12 +171,12 @@ export default function FeeRulesPage() {
         {/* Security / Compliance Note */}
         <div className="bg-slate-900 rounded-2xl p-6 text-white flex items-start space-x-4 shadow-xl">
           <div className="bg-primary/20 p-3 rounded-xl text-primary shrink-0">
-            <ShieldCheck size={24} />
+            <Lock size={24} />
           </div>
           <div>
-            <h4 className="text-sm font-black uppercase tracking-widest mb-1">Dual-Authorization Required</h4>
+            <h4 className="text-sm font-black uppercase tracking-widest mb-1">Dual-Authorization Enforcement</h4>
             <p className="text-slate-400 text-xs leading-relaxed max-w-2xl">
-              All fee engine adjustments require approval from a senior finance officer. Pending changes are held in a staged state and will not impact live transactions until cryptographically signed by the secondary authorizer.
+              Platform economics rules are classified as sensitive infrastructure. All modifications must be cryptographically signed by a secondary authorizer (Finance Ops) before deployment to the live orchestration engine.
             </p>
           </div>
         </div>
