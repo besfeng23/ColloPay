@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -78,8 +77,8 @@ export default function FeeRulesPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase tracking-widest">Fixed Fee (USD Cents)</Label>
-                  <Input defaultValue="25" type="number" className="h-10 text-xs" />
+                  <Label className="text-[10px] font-black uppercase tracking-widest">Fixed Fee (PHP Centavos)</Label>
+                  <Input defaultValue="1500" type="number" className="h-10 text-xs" />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-[10px] font-black uppercase tracking-widest">Basis Points (bps)</Label>
@@ -142,13 +141,13 @@ export default function FeeRulesPage() {
                         </div>
                       </TableCell>
                       <TableCell className="text-xs font-bold text-slate-900">
-                        ${(rule.fixedFee / 100).toFixed(2)}
+                        ₱{(rule.fixedFee / 100).toFixed(2)}
                       </TableCell>
                       <TableCell className="text-xs font-bold text-slate-900">
                         {(rule.percentageFee / 100).toFixed(2)}%
                       </TableCell>
                       <TableCell className="text-xs text-slate-400 font-medium">
-                        {mounted ? new Date(rule.effectiveFrom).toLocaleDateString() : '...'}
+                        {mounted ? new Date(rule.effectiveFrom).toLocaleDateString('en-PH') : '...'}
                       </TableCell>
                       <TableCell className="text-right pr-8">
                         <div className="flex justify-end space-x-2">

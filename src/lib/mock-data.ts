@@ -28,9 +28,9 @@ export const MOCK_PROCESSORS: Processor[] = [
 ];
 
 export const MOCK_FEE_RULES: FeeRule[] = [
-  { id: 'fr_std_01', partnerId: 'p_ent_01', fixedFee: 25, percentageFee: 290, effectiveFrom: daysAgo(180), status: 'active' },
-  { id: 'fr_mch_01', partnerId: 'p_ent_01', merchantId: 'm_9932', fixedFee: 15, percentageFee: 220, effectiveFrom: daysAgo(30), status: 'active' },
-  { id: 'fr_vnt_01', partnerId: 'p_ent_02', fixedFee: 45, percentageFee: 310, effectiveFrom: daysAgo(100), status: 'active' },
+  { id: 'fr_std_01', partnerId: 'p_ent_01', fixedFee: 1500, percentageFee: 290, effectiveFrom: daysAgo(180), status: 'active' },
+  { id: 'fr_mch_01', partnerId: 'p_ent_01', merchantId: 'm_9932', fixedFee: 800, percentageFee: 220, effectiveFrom: daysAgo(30), status: 'active' },
+  { id: 'fr_vnt_01', partnerId: 'p_ent_02', fixedFee: 2500, percentageFee: 310, effectiveFrom: daysAgo(100), status: 'active' },
 ];
 
 export const MOCK_TRANSACTIONS: Transaction[] = Array.from({ length: 50 }).map((_, i) => {
@@ -43,6 +43,9 @@ export const MOCK_TRANSACTIONS: Transaction[] = Array.from({ length: 50 }).map((
   // Distribute transactions across the last 48 hours
   const createdAt = minutesAgo(i * 45 + 10);
   
+  // Scale amounts for PHP realism (e.g., 5,000 PHP to 150,000 PHP)
+  const baseAmount = 500000 + (i * 125500); 
+  
   return {
     id: `tx_sys_${10000 + i}`,
     internalId: `CP-${50000 + i}`,
@@ -53,19 +56,19 @@ export const MOCK_TRANSACTIONS: Transaction[] = Array.from({ length: 50 }).map((
     partnerId: MOCK_PARTNERS[i % MOCK_PARTNERS.length].id,
     merchantId: MOCK_MERCHANTS[i % MOCK_MERCHANTS.length].id,
     processorId: MOCK_PROCESSORS[i % 2].id,
-    amount: 125000 + (i * 2550), 
-    currency: 'USD',
+    amount: baseAmount, 
+    currency: 'PHP',
     status,
     reconStatus,
     paymentMethod: i % 3 === 0 ? 'mastercard' : 'visa',
     createdAt,
     updatedAt: createdAt,
     computedFees: {
-      platformFixed: 25,
+      platformFixed: 1500, // 15 PHP
       platformBps: 290,
-      partnerCut: 85,
-      processorFee: 450,
-      merchantNet: (125000 + (i * 2550)) - 850 
+      partnerCut: Math.round(baseAmount * 0.001),
+      processorFee: Math.round(baseAmount * 0.02),
+      merchantNet: baseAmount - Math.round(baseAmount * 0.03)
     },
     timeline: [
       { id: `ev_01_${i}`, status: 'pending', timestamp: createdAt, note: 'Ingested via Partner API (v2.1)' },
@@ -88,8 +91,8 @@ export const MOCK_AUDIT_LOGS: AuditLog[] = [
 ];
 
 export const MOCK_SETTLEMENTS: Settlement[] = [
-  { id: 'set_bt_1002', merchantId: 'm_8821', amount: 4850000, currency: 'USD', status: 'completed', initiatedAt: daysAgo(1), completedAt: hoursAgo(4), transactionCount: 1422, varianceDetected: false },
-  { id: 'set_bt_1003', merchantId: 'm_9932', amount: 1240000, currency: 'USD', status: 'pending', initiatedAt: hoursAgo(2), transactionCount: 385, varianceDetected: true, reconNote: 'Variance check: 2 transactions flagged for amount mismatch vs processor report' },
+  { id: 'set_bt_1002', merchantId: 'm_8821', amount: 248500000, currency: 'PHP', status: 'completed', initiatedAt: daysAgo(1), completedAt: hoursAgo(4), transactionCount: 1422, varianceDetected: false },
+  { id: 'set_bt_1003', merchantId: 'm_9932', amount: 112400000, currency: 'PHP', status: 'pending', initiatedAt: hoursAgo(2), transactionCount: 385, varianceDetected: true, reconNote: 'Variance check: 2 transactions flagged for amount mismatch vs processor report' },
 ];
 
 export const MOCK_API_KEYS: APIKey[] = [

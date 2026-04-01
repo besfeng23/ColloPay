@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -87,7 +86,7 @@ export default function PartnerTransactionsPage() {
                     </TableCell>
                     <TableCell className="text-sm font-black text-slate-900">
                       {mounted 
-                        ? (tx.amount / 100).toLocaleString('en-US', { style: 'currency', currency: tx.currency })
+                        ? (tx.amount / 100).toLocaleString('en-PH', { style: 'currency', currency: tx.currency })
                         : '...'
                       }
                     </TableCell>

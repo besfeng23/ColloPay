@@ -14,7 +14,7 @@ import { toast } from '@/hooks/use-toast';
 export default function CreatePaymentPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const partnerMerchants = MOCK_MERCHANTS.filter(m => m.partnerId === 'p1');
+  const partnerMerchants = MOCK_MERCHANTS.filter(m => m.partnerId === 'p_ent_01');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,8 +59,8 @@ export default function CreatePaymentPage() {
     "id": "tx-sandbox-992",
     "internalId": "cp-sandbox-992",
     "lifecycle_status": "processing",
-    "amount": 15000,
-    "currency": "USD",
+    "amount": 1500000,
+    "currency": "PHP",
     "processor": "SPEEDYPAY_V1"
   }
 }`}
@@ -117,8 +117,8 @@ export default function CreatePaymentPage() {
                     </Select>
                   </div>
                   <div className="space-y-2.5">
-                    <Label className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-slate-700">Gross Amount (USD)</Label>
-                    <Input type="number" placeholder="100.00" className="bg-slate-50 border-slate-200 h-11 text-sm font-bold" required />
+                    <Label className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-slate-700">Gross Amount (PHP)</Label>
+                    <Input type="number" placeholder="5000.00" className="bg-slate-50 border-slate-200 h-11 text-sm font-bold" required />
                   </div>
                 </div>
 
@@ -136,7 +136,7 @@ export default function CreatePaymentPage() {
                       <SelectContent>
                         <SelectItem value="visa">Visa (Credit Card)</SelectItem>
                         <SelectItem value="mastercard">Mastercard (Debit)</SelectItem>
-                        <SelectItem value="ach">ACH Bank Transfer</SelectItem>
+                        <SelectItem value="ach">GCash / Maya (Digital Wallet)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

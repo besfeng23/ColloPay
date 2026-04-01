@@ -32,7 +32,7 @@ export default function PartnerDashboard() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  const partnerTransactions = MOCK_TRANSACTIONS.filter(t => t.partnerId === 'p1').slice(0, 5);
+  const partnerTransactions = MOCK_TRANSACTIONS.filter(t => t.partnerId === 'p_ent_01').slice(0, 5);
   
   return (
     <DashboardLayout type="partner" title="Partner Control Center">
@@ -40,7 +40,7 @@ export default function PartnerDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard 
           title="Monthly Volume" 
-          value="$482,900" 
+          value="₱4,822,900" 
           description="Processing volume (MTD)"
           icon={TrendingUp}
           trend={{ value: 14.2, isUp: true }}
@@ -60,7 +60,7 @@ export default function PartnerDashboard() {
         />
         <StatCard 
           title="Est. Commission" 
-          value="$2,410" 
+          value="₱24,410" 
           description="Revenue share (MTD)"
           icon={CreditCard}
         />
@@ -92,7 +92,7 @@ export default function PartnerDashboard() {
               </TableHeader>
               <TableBody>
                 {partnerTransactions.map((tx) => (
-                  <TableRow key={tx.id} className="group border-b border-slate-50 h-16 hover:bg-slate-50/50 transition-colors">
+                  <TableRow key={tx.id} className="group border-b border-slate-50 h-16 hover:bg-slate-50/30 transition-colors">
                     <TableCell className="pl-8">
                       <div className="flex flex-col">
                         <span className="text-sm font-bold text-slate-900">Merchant {tx.merchantId}</span>
@@ -100,14 +100,14 @@ export default function PartnerDashboard() {
                       </div>
                     </TableCell>
                     <TableCell className="text-sm font-black text-slate-900">
-                      {mounted ? (tx.amount / 100).toLocaleString('en-US', { style: 'currency', currency: tx.currency }) : '...'}
+                      {mounted ? (tx.amount / 100).toLocaleString('en-PH', { style: 'currency', currency: tx.currency }) : '...'}
                     </TableCell>
                     <TableCell>
                       <Badge variant={tx.status === 'succeeded' ? 'default' : 'destructive'} className="text-[9px] font-black uppercase tracking-widest px-2 py-0">
                         {tx.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right pr-8 text-[11px] font-bold text-slate-500">
+                    <TableCell className="text-right pr-8 text-[11px] font-bold text-slate-400">
                       {mounted ? new Date(tx.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '...'}
                     </TableCell>
                   </TableRow>

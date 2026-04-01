@@ -10,7 +10,7 @@ import {
   type ProcessorWebhookEvent,
 } from './types';
 
-const currencySchema = z.enum(['USD', 'KES', 'EUR']);
+const currencySchema = z.enum(['USD', 'KES', 'EUR', 'PHP']);
 
 export const createPaymentRequestSchema = z.object({
   idempotencyKey: z.string().min(8).max(128),

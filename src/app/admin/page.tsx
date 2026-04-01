@@ -88,14 +88,14 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <StatCard 
           title="Daily Gross Volume" 
-          value="$2.84M" 
+          value="₱142.84M" 
           description="Across 14k transactions"
           icon={CreditCard}
           trend={{ value: 12.4, isUp: true }}
         />
         <StatCard 
           title="Net Platform Margin" 
-          value="$38,420" 
+          value="₱1,938,420" 
           description="Estimated fee revenue"
           icon={CircleDollarSign}
           trend={{ value: 4.1, isUp: true }}
@@ -145,7 +145,7 @@ export default function AdminDashboard() {
                     <TableCell className="text-xs font-bold text-slate-700">M-{tx.merchantId}</TableCell>
                     <TableCell className="text-xs font-black text-slate-900">
                       {mounted 
-                        ? (tx.amount / 100).toLocaleString('en-US', { style: 'currency', currency: tx.currency })
+                        ? (tx.amount / 100).toLocaleString('en-PH', { style: 'currency', currency: tx.currency })
                         : '...'
                       }
                     </TableCell>

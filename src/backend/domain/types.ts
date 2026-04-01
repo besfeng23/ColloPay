@@ -1,5 +1,5 @@
 export type ISODateString = string;
-export type CurrencyCode = 'USD' | 'KES' | 'EUR';
+export type CurrencyCode = 'USD' | 'KES' | 'EUR' | 'PHP';
 
 export const TRANSACTION_STATUSES = [
   'INITIATED',

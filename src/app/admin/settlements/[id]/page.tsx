@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -81,19 +80,19 @@ export default function SettlementDetailPage() {
                 <div className="p-6">
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Gross Batch Value</p>
                   <p className="text-xl font-black text-slate-900">
-                    {mounted ? (settlement.amount / 100).toLocaleString('en-US', { style: 'currency', currency: settlement.currency }) : '...'}
+                    {mounted ? (settlement.amount / 100).toLocaleString('en-PH', { style: 'currency', currency: settlement.currency }) : '...'}
                   </p>
                 </div>
                 <div className="p-6">
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Fee Deductions</p>
                   <p className="text-xl font-black text-rose-600">
-                    {mounted ? (- (settlement.amount * 0.025) / 100).toLocaleString('en-US', { style: 'currency', currency: settlement.currency }) : '...'}
+                    {mounted ? (- (settlement.amount * 0.025) / 100).toLocaleString('en-PH', { style: 'currency', currency: settlement.currency }) : '...'}
                   </p>
                 </div>
                 <div className="p-6 bg-slate-50/50">
                   <p className="text-[9px] font-black text-primary uppercase tracking-widest mb-1">Net Disbursement</p>
                   <p className="text-xl font-black text-primary">
-                    {mounted ? ((settlement.amount * 0.975) / 100).toLocaleString('en-US', { style: 'currency', currency: settlement.currency }) : '...'}
+                    {mounted ? ((settlement.amount * 0.975) / 100).toLocaleString('en-PH', { style: 'currency', currency: settlement.currency }) : '...'}
                   </p>
                 </div>
               </div>
@@ -122,7 +121,7 @@ export default function SettlementDetailPage() {
                       <TableCell className="pl-8 font-mono text-xs font-bold text-primary">{tx.internalId}</TableCell>
                       <TableCell className="font-mono text-[10px] text-slate-400">{tx.processorTransactionId}</TableCell>
                       <TableCell className="text-sm font-black text-slate-900">
-                        {(tx.amount / 100).toLocaleString('en-US', { style: 'currency', currency: tx.currency })}
+                        {(tx.amount / 100).toLocaleString('en-PH', { style: 'currency', currency: tx.currency })}
                       </TableCell>
                       <TableCell className="text-right pr-8">
                         <Link href={`/admin/transactions/${tx.id}`}>
@@ -168,7 +167,7 @@ export default function SettlementDetailPage() {
                 <Building2 size={16} className="text-slate-400 mt-0.5" />
                 <div>
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Target Bank rail</p>
-                  <p className="text-xs font-bold text-slate-900">Fedwire (Direct)</p>
+                  <p className="text-xs font-bold text-slate-900">InstaPay (Direct)</p>
                 </div>
               </div>
             </CardContent>

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -59,7 +58,7 @@ export default function PartnerTransactionDetailPage() {
               </div>
               <div className="text-right">
                 <p className="text-2xl font-black text-slate-900">
-                  {mounted ? (transaction.amount / 100).toLocaleString('en-US', { style: 'currency', currency: transaction.currency }) : '...'}
+                  {mounted ? (transaction.amount / 100).toLocaleString('en-PH', { style: 'currency', currency: transaction.currency }) : '...'}
                 </p>
                 <p className="text-[10px] text-slate-400 uppercase tracking-widest font-black">Gross Transaction Value</p>
               </div>
@@ -69,13 +68,13 @@ export default function PartnerTransactionDetailPage() {
                 <div className="p-6">
                   <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Commission Share</p>
                   <p className="text-lg font-bold text-emerald-600">
-                    {mounted ? (transaction.computedFees.partnerCut / 100).toLocaleString('en-US', { style: 'currency', currency: transaction.currency }) : '...'}
+                    {mounted ? (transaction.computedFees.partnerCut / 100).toLocaleString('en-PH', { style: 'currency', currency: transaction.currency }) : '...'}
                   </p>
                 </div>
                 <div className="p-6">
                   <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Merchant Net</p>
                   <p className="text-lg font-bold text-slate-900">
-                    {mounted ? (transaction.computedFees.merchantNet / 100).toLocaleString('en-US', { style: 'currency', currency: transaction.currency }) : '...'}
+                    {mounted ? (transaction.computedFees.merchantNet / 100).toLocaleString('en-PH', { style: 'currency', currency: transaction.currency }) : '...'}
                   </p>
                 </div>
                 <div className="p-6">
@@ -127,7 +126,7 @@ export default function PartnerTransactionDetailPage() {
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-700">{event.status}</span>
                         <span className="text-[10px] text-slate-400 font-bold">
-                          {mounted ? new Date(event.timestamp).toLocaleString() : '...'}
+                          {mounted ? new Date(event.timestamp).toLocaleString('en-PH') : '...'}
                         </span>
                       </div>
                       <p className="text-xs text-slate-600 font-medium">{event.note}</p>
@@ -173,7 +172,7 @@ export default function PartnerTransactionDetailPage() {
               </div>
               <div>
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Settlement Rail</p>
-                <p className="text-xs font-bold text-slate-900">ACH Next-Day</p>
+                <p className="text-xs font-bold text-slate-900">PESONet Next-Day</p>
               </div>
             </CardContent>
             <CardFooter className="p-4 border-t bg-slate-50/30">

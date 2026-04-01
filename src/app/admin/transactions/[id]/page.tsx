@@ -72,7 +72,7 @@ export default function TransactionDetailPage() {
               </div>
               <div className="text-left sm:text-right mt-2 sm:mt-0">
                 <p className="text-xl sm:text-2xl font-black text-slate-900">
-                  {mounted ? (transaction.amount / 100).toLocaleString('en-US', { style: 'currency', currency: transaction.currency }) : '...'}
+                  {mounted ? (transaction.amount / 100).toLocaleString('en-PH', { style: 'currency', currency: transaction.currency }) : '...'}
                 </p>
                 <p className="text-[10px] text-slate-400 uppercase tracking-widest font-black">Gross Transaction Amount</p>
               </div>
@@ -208,21 +208,21 @@ export default function TransactionDetailPage() {
             <CardContent className="space-y-4 p-4 sm:p-6">
               <div className="flex justify-between items-center text-xs sm:text-sm">
                 <span className="text-slate-400 font-medium">Platform Service Fee</span>
-                <span className="font-bold">{(transaction.computedFees.platformFixed / 100 + transaction.computedFees.platformBps / 100).toFixed(2)} USD</span>
+                <span className="font-bold">{(transaction.computedFees.platformFixed / 100 + transaction.computedFees.platformBps / 100).toFixed(2)} PHP</span>
               </div>
               <div className="flex justify-between items-center text-xs sm:text-sm">
                 <span className="text-slate-400 font-medium">Partner Commission</span>
-                <span className="font-bold">{(transaction.computedFees.partnerCut / 100).toFixed(2)} USD</span>
+                <span className="font-bold">{(transaction.computedFees.partnerCut / 100).toFixed(2)} PHP</span>
               </div>
               <div className="flex justify-between items-center text-xs sm:text-sm">
                 <span className="text-slate-400 font-medium">Upstream Cost</span>
-                <span className="font-bold">{(transaction.computedFees.processorFee / 100).toFixed(2)} USD</span>
+                <span className="font-bold">{(transaction.computedFees.processorFee / 100).toFixed(2)} PHP</span>
               </div>
               <Separator className="bg-slate-800" />
               <div className="flex flex-col items-center py-4 bg-white/5 rounded-xl">
                 <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Merchant Net Disbursement</p>
                 <p className="text-2xl sm:text-3xl font-black font-mono tracking-tighter">
-                  {(transaction.computedFees.merchantNet / 100).toLocaleString('en-US', { style: 'currency', currency: transaction.currency })}
+                  {(transaction.computedFees.merchantNet / 100).toLocaleString('en-PH', { style: 'currency', currency: transaction.currency })}
                 </p>
               </div>
             </CardContent>

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -69,7 +68,7 @@ export default function PartnerDetailPage() {
                   <div>
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Portfolio Processing</p>
                     <p className="text-2xl font-black text-slate-900">
-                      {mounted ? (partnerVolume / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : '...'}
+                      {mounted ? (partnerVolume / 100).toLocaleString('en-PH', { style: 'currency', currency: 'PHP' }) : '...'}
                     </p>
                   </div>
                   <div className="bg-emerald-50 text-emerald-600 p-2 rounded-lg">
@@ -161,7 +160,7 @@ export default function PartnerDetailPage() {
                 <Calendar size={16} className="text-primary mt-0.5" />
                 <div>
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Enterprise Tenure</p>
-                  <p className="text-xs font-bold text-slate-900">Since {mounted ? new Date(partner.createdAt).toLocaleDateString() : '...'}</p>
+                  <p className="text-xs font-bold text-slate-900">Since {mounted ? new Date(partner.createdAt).toLocaleDateString('en-PH') : '...'}</p>
                 </div>
               </div>
               <div className="flex items-start space-x-3">

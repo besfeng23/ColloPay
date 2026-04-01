@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -75,7 +74,7 @@ export default function SettlementsPage() {
                     </TableCell>
                     <TableCell className="text-sm font-medium">{merchant?.name}</TableCell>
                     <TableCell className="text-sm font-bold">
-                      {mounted ? (set.amount / 100).toLocaleString('en-US', { style: 'currency', currency: set.currency }) : '...'}
+                      {mounted ? (set.amount / 100).toLocaleString('en-PH', { style: 'currency', currency: set.currency }) : '...'}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">{set.transactionCount} txns</TableCell>
                     <TableCell>
@@ -84,7 +83,7 @@ export default function SettlementsPage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">
-                      {mounted ? new Date(set.initiatedAt).toLocaleDateString() : '...'}
+                      {mounted ? new Date(set.initiatedAt).toLocaleDateString('en-PH') : '...'}
                     </TableCell>
                     <TableCell className="text-right">
                       <Link href={`/admin/settlements/${set.id}`}>

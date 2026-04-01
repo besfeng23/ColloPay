@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -116,7 +115,7 @@ export default function MerchantDetailPage() {
                         <TableRow key={tx.id} className="h-16 hover:bg-slate-50/50 transition-colors">
                           <TableCell className="pl-8 font-mono text-xs font-bold text-primary">{tx.internalId}</TableCell>
                           <TableCell className="text-sm font-black">
-                            {(tx.amount / 100).toLocaleString('en-US', { style: 'currency', currency: tx.currency })}
+                            {(tx.amount / 100).toLocaleString('en-PH', { style: 'currency', currency: tx.currency })}
                           </TableCell>
                           <TableCell>
                             <Badge variant={tx.status === 'succeeded' ? 'default' : 'destructive'} className="text-[9px] uppercase font-black">
@@ -124,7 +123,7 @@ export default function MerchantDetailPage() {
                             </Badge>
                           </TableCell>
                           <TableCell className="text-right pr-8 text-xs text-slate-400 font-medium">
-                            {mounted ? new Date(tx.createdAt).toLocaleString() : '...'}
+                            {mounted ? new Date(tx.createdAt).toLocaleString('en-PH') : '...'}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -190,7 +189,7 @@ export default function MerchantDetailPage() {
                     <TableRow>
                       <TableCell className="pl-8 py-6">
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Platform Fixed</p>
-                        <p className="text-sm font-bold text-slate-900">$0.15 per transaction</p>
+                        <p className="text-sm font-bold text-slate-900">₱8.00 per transaction</p>
                       </TableCell>
                       <TableCell className="py-6 text-right pr-8">
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Platform Basis Points</p>
@@ -214,7 +213,7 @@ export default function MerchantDetailPage() {
             </CardHeader>
             <CardContent className="p-6 pt-2 space-y-6">
               <div>
-                <p className="text-2xl font-black text-white">$42,840.00</p>
+                <p className="text-2xl font-black text-white">₱2,442,840.00</p>
                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">30D Processing Volume</p>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -237,11 +236,11 @@ export default function MerchantDetailPage() {
             <CardContent className="p-6 space-y-4">
               <div className="space-y-1">
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Date Boarded</p>
-                <p className="text-xs font-bold text-slate-900">{mounted ? new Date(merchant.createdAt).toLocaleDateString() : '...'}</p>
+                <p className="text-xs font-bold text-slate-900">{mounted ? new Date(merchant.createdAt).toLocaleDateString('en-PH') : '...'}</p>
               </div>
               <div className="space-y-1">
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Settlement Rail</p>
-                <p className="text-xs font-bold text-slate-900">ACH (Next Day)</p>
+                <p className="text-xs font-bold text-slate-900">PESONet (Next Day)</p>
               </div>
               <div className="space-y-1">
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">KYC Status</p>

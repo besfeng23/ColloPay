@@ -103,7 +103,7 @@ export default function TransactionsPage() {
                         </div>
                       </TableCell>
                       <TableCell className="text-xs font-medium text-muted-foreground whitespace-nowrap">
-                        {mounted ? new Date(tx.createdAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : '...'}
+                        {mounted ? new Date(tx.createdAt).toLocaleString('en-PH', { dateStyle: 'short', timeStyle: 'short' }) : '...'}
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col">
@@ -116,7 +116,7 @@ export default function TransactionsPage() {
                       <TableCell className="text-sm font-medium">M-{tx.merchantId}</TableCell>
                       <TableCell className="text-sm font-semibold">
                         {mounted 
-                          ? (tx.amount / 100).toLocaleString('en-US', { style: 'currency', currency: tx.currency })
+                          ? (tx.amount / 100).toLocaleString('en-PH', { style: 'currency', currency: tx.currency })
                           : '...'
                         }
                       </TableCell>
