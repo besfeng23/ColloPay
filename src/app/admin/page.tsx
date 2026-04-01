@@ -34,7 +34,7 @@ export default function AdminDashboard() {
   return (
     <DashboardLayout type="admin" title="Platform Intelligence">
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <StatCard 
           title="Active Partners" 
           value="12" 
@@ -65,10 +65,10 @@ export default function AdminDashboard() {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
         {/* Recent Transactions */}
         <Card className="lg:col-span-2 border-none shadow-sm bg-white overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between bg-slate-50/30 border-b p-6">
+          <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-slate-50/30 border-b p-4 sm:p-6 gap-4">
             <div>
               <CardTitle className="text-base font-black text-slate-900">Live Transaction Stream</CardTitle>
               <CardDescription className="text-xs font-medium text-slate-500">Real-time visibility into global financial flows</CardDescription>
@@ -77,70 +77,69 @@ export default function AdminDashboard() {
               View All Ledger <ArrowRight size={14} className="ml-1.5" />
             </Link>
           </CardHeader>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader className="bg-slate-50/20">
-                <TableRow className="hover:bg-transparent border-none">
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest pl-8 h-12">Forensic ID</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest h-12">Merchant</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest h-12">Gross Amount</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest h-12">Status</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-right pr-8 h-12">Time</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentTransactions.map((tx) => (
-                  <TableRow key={tx.id} className="group border-b border-slate-50 h-14 hover:bg-slate-50/50 transition-colors">
-                    <TableCell className="pl-8 font-mono text-[11px] font-bold text-primary">{tx.internalId}</TableCell>
-                    <TableCell className="text-xs font-bold text-slate-700">M-{tx.merchantId}</TableCell>
-                    <TableCell className="text-xs font-black text-slate-900">
-                      {mounted 
-                        ? (tx.amount / 100).toLocaleString('en-US', { style: 'currency', currency: tx.currency })
-                        : '...'
-                      }
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={
-                        tx.status === 'succeeded' ? 'default' : 
-                        tx.status === 'failed' ? 'destructive' : 
-                        'secondary'
-                      } className="text-[9px] font-black uppercase tracking-widest px-2 py-0">
-                        {tx.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right pr-8 text-[11px] font-bold text-slate-400">
-                      {mounted 
-                        ? new Date(tx.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                        : '...'
-                      }
-                    </TableCell>
+          <CardContent className="p-0 overflow-x-auto">
+            <div className="min-w-[700px]">
+              <Table>
+                <TableHeader className="bg-slate-50/20">
+                  <TableRow className="hover:bg-transparent border-none">
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest pl-6 sm:pl-8 h-12">Forensic ID</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest h-12">Merchant</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest h-12">Gross Amount</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest h-12">Status</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-right pr-6 sm:pr-8 h-12">Time</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {recentTransactions.map((tx) => (
+                    <TableRow key={tx.id} className="group border-b border-slate-50 h-14 hover:bg-slate-50/50 transition-colors">
+                      <TableCell className="pl-6 sm:pl-8 font-mono text-[11px] font-bold text-primary">{tx.internalId}</TableCell>
+                      <TableCell className="text-xs font-bold text-slate-700">M-{tx.merchantId}</TableCell>
+                      <TableCell className="text-xs font-black text-slate-900">
+                        {mounted 
+                          ? (tx.amount / 100).toLocaleString('en-US', { style: 'currency', currency: tx.currency })
+                          : '...'
+                        }
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={
+                          tx.status === 'succeeded' ? 'default' : 
+                          tx.status === 'failed' ? 'destructive' : 
+                          'secondary'
+                        } className="text-[9px] font-black uppercase tracking-widest px-2 py-0">
+                          {tx.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right pr-6 sm:pr-8 text-[11px] font-bold text-slate-400">
+                        {mounted 
+                          ? new Date(tx.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                          : '...'
+                        }
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
 
         {/* Security / Audit Log */}
-        <div className="space-y-8">
+        <div className="space-y-6 sm:space-y-8">
           <Card className="border-none shadow-sm bg-white overflow-hidden">
-            <CardHeader className="bg-slate-50/30 border-b p-6">
+            <CardHeader className="bg-slate-50/30 border-b p-4 sm:p-6">
               <CardTitle className="text-base font-black text-slate-900 flex items-center">
                 <ShieldCheck size={18} className="mr-2 text-primary" />
                 Critical Security Events
               </CardTitle>
               <CardDescription className="text-xs font-medium text-slate-500">Sensitive system operations monitoring</CardDescription>
             </CardHeader>
-            <CardContent className="p-6 space-y-6">
-              {MOCK_AUDIT_LOGS.map((log) => (
+            <CardContent className="p-4 sm:p-6 space-y-6">
+              {MOCK_AUDIT_LOGS.slice(0, 3).map((log) => (
                 <div key={log.id} className="flex space-x-3 group">
-                  <div className="shrink-0 w-1.5 h-10 bg-slate-100 rounded-full group-hover:bg-accent transition-colors"></div>
+                  <div className="shrink-0 w-1 h-8 bg-slate-100 rounded-full group-hover:bg-accent transition-colors"></div>
                   <div className="overflow-hidden">
-                    <p className="text-xs font-black text-slate-900 uppercase tracking-tight">{log.action}</p>
+                    <p className="text-xs font-black text-slate-900 uppercase tracking-tight truncate">{log.action}</p>
                     <p className="text-[10px] text-slate-400 truncate max-w-full font-bold">{log.userEmail}</p>
-                    <p className="text-[9px] text-slate-400 mt-1 uppercase tracking-widest font-black">
-                      {mounted ? new Date(log.timestamp).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : '...'}
-                    </p>
                   </div>
                 </div>
               ))}
@@ -151,13 +150,13 @@ export default function AdminDashboard() {
           </Card>
 
           <Card className="border-none shadow-sm bg-accent text-white overflow-hidden">
-            <CardHeader className="p-6">
+            <CardHeader className="p-4 sm:p-6 pb-2">
               <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center">
                 <Activity size={16} className="mr-2" />
                 Processor Health
               </CardTitle>
             </CardHeader>
-            <CardContent className="px-6 pb-6 space-y-4">
+            <CardContent className="px-4 sm:px-6 pb-6 space-y-4">
               <div className="flex justify-between items-center">
                 <span className="text-xs font-bold text-white/70">SpeedyPay V1</span>
                 <Badge className="bg-white text-accent text-[9px] font-black tracking-widest">ACTIVE</Badge>
