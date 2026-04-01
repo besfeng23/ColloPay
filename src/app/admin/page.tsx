@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -10,7 +9,8 @@ import {
   CreditCard, 
   CircleDollarSign,
   ArrowRight,
-  ShieldCheck
+  ShieldCheck,
+  Activity
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { 
@@ -27,76 +27,73 @@ import Link from 'next/link';
 
 export default function AdminDashboard() {
   const [mounted, setMounted] = useState(false);
-  
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  useEffect(() => setMounted(true), []);
 
-  const recentTransactions = MOCK_TRANSACTIONS.slice(0, 5);
+  const recentTransactions = MOCK_TRANSACTIONS.slice(0, 8);
   
   return (
-    <DashboardLayout type="admin" title="Platform Overview">
+    <DashboardLayout type="admin" title="Platform Intelligence">
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard 
           title="Active Partners" 
           value="12" 
-          description="Across 3 regions"
+          description="Enterprise integrators"
           icon={Users}
-          trend={{ value: 8, isUp: true }}
+          trend={{ value: 8.4, isUp: true }}
         />
         <StatCard 
           title="Total Merchants" 
           value="1,482" 
-          description="45 pending review"
+          description="45 pending onboarding"
           icon={Store}
-          trend={{ value: 12, isUp: true }}
+          trend={{ value: 12.1, isUp: true }}
         />
         <StatCard 
-          title="Daily Volume" 
+          title="24h Gross Volume" 
           value="$1.2M" 
-          description="Processed last 24h"
+          description="Processed globally"
           icon={CreditCard}
-          trend={{ value: 5, isUp: true }}
+          trend={{ value: 5.2, isUp: true }}
         />
         <StatCard 
-          title="Platform Fees" 
+          title="Net Platform Revenue" 
           value="$14,280" 
-          description="Net platform revenue (MTD)"
+          description="Aggregated fees (MTD)"
           icon={CircleDollarSign}
-          trend={{ value: 3, isUp: false }}
+          trend={{ value: 3.8, isUp: false }}
         />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Recent Transactions */}
-        <Card className="lg:col-span-2 border-none shadow-sm bg-white">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <Card className="lg:col-span-2 border-none shadow-sm bg-white overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between bg-slate-50/30 border-b p-6">
             <div>
-              <CardTitle className="text-lg font-semibold">Live Transaction Stream</CardTitle>
-              <CardDescription>Real-time visibility into global payment flows</CardDescription>
+              <CardTitle className="text-base font-black text-slate-900">Live Transaction Stream</CardTitle>
+              <CardDescription className="text-xs font-medium text-slate-500">Real-time visibility into global financial flows</CardDescription>
             </div>
-            <Link href="/admin/transactions" className="text-accent hover:underline text-sm font-medium flex items-center">
-              View All <ArrowRight size={14} className="ml-1" />
+            <Link href="/admin/transactions" className="text-accent hover:underline text-[11px] font-black uppercase tracking-widest flex items-center">
+              View All Ledger <ArrowRight size={14} className="ml-1.5" />
             </Link>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0">
             <Table>
-              <TableHeader>
+              <TableHeader className="bg-slate-50/20">
                 <TableRow className="hover:bg-transparent border-none">
-                  <TableHead className="text-xs uppercase font-bold tracking-wider text-muted-foreground">Internal ID</TableHead>
-                  <TableHead className="text-xs uppercase font-bold tracking-wider text-muted-foreground">Merchant</TableHead>
-                  <TableHead className="text-xs uppercase font-bold tracking-wider text-muted-foreground">Amount</TableHead>
-                  <TableHead className="text-xs uppercase font-bold tracking-wider text-muted-foreground">Status</TableHead>
-                  <TableHead className="text-xs uppercase font-bold tracking-wider text-muted-foreground text-right">Time</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest pl-8 h-12">Forensic ID</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest h-12">Merchant</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest h-12">Gross Amount</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest h-12">Status</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-right pr-8 h-12">Time</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {recentTransactions.map((tx) => (
-                  <TableRow key={tx.id} className="group">
-                    <TableCell className="font-mono text-xs">{tx.internalId}</TableCell>
-                    <TableCell className="text-sm font-medium">Merchant {tx.merchantId}</TableCell>
-                    <TableCell className="text-sm font-semibold">
+                  <TableRow key={tx.id} className="group border-b border-slate-50 h-14 hover:bg-slate-50/50 transition-colors">
+                    <TableCell className="pl-8 font-mono text-[11px] font-bold text-primary">{tx.internalId}</TableCell>
+                    <TableCell className="text-xs font-bold text-slate-700">M-{tx.merchantId}</TableCell>
+                    <TableCell className="text-xs font-black text-slate-900">
                       {mounted 
                         ? (tx.amount / 100).toLocaleString('en-US', { style: 'currency', currency: tx.currency })
                         : '...'
@@ -107,11 +104,11 @@ export default function AdminDashboard() {
                         tx.status === 'succeeded' ? 'default' : 
                         tx.status === 'failed' ? 'destructive' : 
                         'secondary'
-                      } className="text-[10px] font-bold uppercase tracking-widest px-2 py-0">
+                      } className="text-[9px] font-black uppercase tracking-widest px-2 py-0">
                         {tx.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right text-xs text-muted-foreground">
+                    <TableCell className="text-right pr-8 text-[11px] font-bold text-slate-400">
                       {mounted 
                         ? new Date(tx.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                         : '...'
@@ -125,32 +122,53 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Security / Audit Log */}
-        <Card className="border-none shadow-sm bg-white">
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold flex items-center">
-              <ShieldCheck size={20} className="mr-2 text-primary" />
-              Critical Events
-            </CardTitle>
-            <CardDescription>Sensitive operations monitoring</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {MOCK_AUDIT_LOGS.map((log) => (
-              <div key={log.id} className="flex space-x-3">
-                <div className="shrink-0 w-1 h-10 bg-accent/20 rounded-full"></div>
-                <div>
-                  <p className="text-sm font-medium text-foreground">{log.action}</p>
-                  <p className="text-xs text-muted-foreground truncate max-w-[200px]">{log.userEmail}</p>
-                  <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-wider font-bold">
-                    {mounted ? new Date(log.timestamp).toLocaleString() : '...'}
-                  </p>
+        <div className="space-y-8">
+          <Card className="border-none shadow-sm bg-white overflow-hidden">
+            <CardHeader className="bg-slate-50/30 border-b p-6">
+              <CardTitle className="text-base font-black text-slate-900 flex items-center">
+                <ShieldCheck size={18} className="mr-2 text-primary" />
+                Critical Security Events
+              </CardTitle>
+              <CardDescription className="text-xs font-medium text-slate-500">Sensitive system operations monitoring</CardDescription>
+            </CardHeader>
+            <CardContent className="p-6 space-y-6">
+              {MOCK_AUDIT_LOGS.map((log) => (
+                <div key={log.id} className="flex space-x-3 group">
+                  <div className="shrink-0 w-1.5 h-10 bg-slate-100 rounded-full group-hover:bg-accent transition-colors"></div>
+                  <div className="overflow-hidden">
+                    <p className="text-xs font-black text-slate-900 uppercase tracking-tight">{log.action}</p>
+                    <p className="text-[10px] text-slate-400 truncate max-w-full font-bold">{log.userEmail}</p>
+                    <p className="text-[9px] text-slate-400 mt-1 uppercase tracking-widest font-black">
+                      {mounted ? new Date(log.timestamp).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : '...'}
+                    </p>
+                  </div>
                 </div>
+              ))}
+              <Link href="/admin/audit" className="block text-center text-[10px] font-black py-3 bg-slate-50 rounded-xl text-slate-400 hover:bg-slate-100 hover:text-primary transition-all uppercase tracking-widest mt-4">
+                View Immutable Audit History
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-sm bg-accent text-white overflow-hidden">
+            <CardHeader className="p-6">
+              <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center">
+                <Activity size={16} className="mr-2" />
+                Processor Health
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="px-6 pb-6 space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-bold text-white/70">SpeedyPay V1</span>
+                <Badge className="bg-white text-accent text-[9px] font-black tracking-widest">ACTIVE</Badge>
               </div>
-            ))}
-            <Link href="/admin/audit" className="block text-center text-xs font-semibold py-2 bg-muted rounded-md text-muted-foreground hover:bg-muted/80 transition-colors uppercase tracking-widest mt-4">
-              View Audit History
-            </Link>
-          </CardContent>
-        </Card>
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-bold text-white/70">GlobalDirect ACH</span>
+                <Badge className="bg-white text-accent text-[9px] font-black tracking-widest">ACTIVE</Badge>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </DashboardLayout>
   );
