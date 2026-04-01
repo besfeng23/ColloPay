@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { UserPlus, ShieldAlert, FileCheck, CheckCircle2, XCircle, ArrowRight, Building2, Search, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 const MOCK_QUEUE = [
   { id: 'app_9921', name: 'Zodiac Digital', type: 'Partner', tier: 'Enterprise', risk: 'Low', status: 'Pending Review', submittedAt: '2h ago' },

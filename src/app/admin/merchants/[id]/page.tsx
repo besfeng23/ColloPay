@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -19,9 +20,23 @@ import {
   Settings,
   ArrowRight,
   ExternalLink,
-  Lock
+  Lock,
+  Plus
 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogFooter, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger 
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { toast } from '@/hooks/use-toast';
 
 export default function MerchantDetailPage() {
   const params = useParams();
@@ -37,6 +52,13 @@ export default function MerchantDetailPage() {
 
   const partner = MOCK_PARTNERS.find(p => p.id === merchant.partnerId);
   const recentTransactions = MOCK_TRANSACTIONS.filter(t => t.merchantId === merchant.id).slice(0, 5);
+
+  const handleUpdateRouting = () => {
+    toast({
+      title: "Routing Configuration Updated",
+      description: "Priority changes have been committed to the adaptive routing engine.",
+    });
+  };
 
   return (
     <DashboardLayout type="admin" title="Merchant Forensic">
@@ -131,9 +153,11 @@ export default function MerchantDetailPage() {
                   </Table>
                 </CardContent>
                 <CardFooter className="bg-slate-50/30 p-4 justify-center">
-                  <Button variant="ghost" size="sm" className="text-xs font-bold text-slate-400 hover:text-primary">
-                    View Full Merchant Ledger <ArrowRight size={14} className="ml-2" />
-                  </Button>
+                  <Link href="/admin/transactions">
+                    <Button variant="ghost" size="sm" className="text-xs font-bold text-slate-400 hover:text-primary">
+                      View Full Merchant Ledger <ArrowRight size={14} className="ml-2" />
+                    </Button>
+                  </Link>
                 </CardFooter>
               </Card>
             </TabsContent>
@@ -162,12 +186,59 @@ export default function MerchantDetailPage() {
                       </div>
                     </CardContent>
                     <CardFooter className="border-t bg-slate-50/30 p-4">
-                      <Button variant="ghost" size="sm" className="w-full text-[10px] font-black uppercase tracking-widest text-primary">
-                        Configure Adaptive Routing
-                      </Button>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="ghost" size="sm" className="w-full text-[10px] font-black uppercase tracking-widest text-primary">
+                            Configure Adaptive Routing
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle className="text-lg font-black uppercase tracking-tight">Adaptive Routing Rule</DialogTitle>
+                            <DialogDescription className="text-xs">
+                              Modify the orchestration priority for <strong>{proc.name}</strong> for this merchant.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="grid gap-6 py-4">
+                            <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase tracking-widest">Priority Weight (1-1000)</Label>
+                              <Input type="number" defaultValue="100" className="h-10 text-xs font-bold" />
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase tracking-widest">Failover Scenario</Label>
+                              <Select defaultValue="next">
+                                <SelectTrigger className="h-10 text-xs">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="next">Try Next Highest Priority</SelectItem>
+                                  <SelectItem value="reject">Reject Immediately</SelectItem>
+                                  <SelectItem value="manual">Flag for Manual Approval</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <Button onClick={handleUpdateRouting} className="w-full bg-primary text-white font-black uppercase tracking-widest h-11 text-[10px]">
+                              Apply Rule Change
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
                     </CardFooter>
                   </Card>
                 ))}
+                
+                <Card className="border-none shadow-sm bg-slate-50 border-2 border-dashed border-slate-200 flex flex-col items-center justify-center p-8 space-y-4">
+                  <div className="p-3 bg-white rounded-full shadow-sm text-slate-300">
+                    <Plus size={24} />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xs font-black uppercase text-slate-400">Map Additional Processor</p>
+                    <p className="text-[10px] text-slate-400 font-medium">Expand redundancy for this merchant</p>
+                  </div>
+                  <Button variant="outline" className="h-9 px-6 text-[9px] font-black uppercase border-slate-200">Start Mapping</Button>
+                </Card>
               </div>
             </TabsContent>
 

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -14,15 +15,35 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, Search, ArrowRight, Filter, Scale, CheckCircle2, FileWarning, Clock, ShieldAlert } from 'lucide-react';
+import { AlertTriangle, Search, ArrowRight, Filter, Scale, CheckCircle2, FileWarning, Clock, ShieldAlert, History } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogFooter, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger 
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { toast } from '@/hooks/use-toast';
 
 export default function ReconciliationPage() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
   const exceptions = MOCK_TRANSACTIONS.filter(t => t.reconStatus === 'mismatch' || t.status === 'failed').slice(0, 8);
+
+  const handleResolve = (id: string) => {
+    toast({
+      title: "Variance Resolved",
+      description: `Transaction ${id} has been manually reconciled in the ledger.`,
+    });
+  };
 
   return (
     <DashboardLayout type="admin" title="Financial Reconciliation Center">
@@ -133,11 +154,53 @@ export default function ReconciliationPage() {
                     <span className="text-[10px] font-bold text-slate-400 uppercase">{idx * 2 + 1}h ago</span>
                   </TableCell>
                   <TableCell className="text-right pr-8">
-                    <Link href={`/admin/transactions/${tx.id}`}>
-                      <Button variant="ghost" size="sm" className="text-primary text-[10px] font-black uppercase tracking-widest h-9 px-4 hover:bg-primary/5 transition-all">
-                        Investigate <ArrowRight size={14} className="ml-1.5" />
-                      </Button>
-                    </Link>
+                    <div className="flex justify-end items-center space-x-2">
+                      <Link href={`/admin/transactions/${tx.id}`}>
+                        <Button variant="ghost" size="icon" className="text-slate-400 h-9 w-9">
+                          <History size={16} />
+                        </Button>
+                      </Link>
+                      
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="ghost" size="sm" className="text-primary text-[10px] font-black uppercase tracking-widest h-9 px-4 hover:bg-primary/5 transition-all">
+                            Resolve <ArrowRight size={14} className="ml-1.5" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                          <DialogHeader>
+                            <DialogTitle className="text-lg font-black uppercase tracking-tight">Manual Reconciliation</DialogTitle>
+                            <DialogDescription className="text-xs font-medium">
+                              Identify the resolution path for trace <strong>{tx.internalId}</strong>. This will commit an immutable correction to the ledger.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="grid gap-6 py-4">
+                            <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase tracking-widest">Resolution Action</Label>
+                              <Select defaultValue="match">
+                                <SelectTrigger className="h-10 text-xs">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="match">Force Match (Internal is Correct)</SelectItem>
+                                  <SelectItem value="adjustment">Adjust Amount (Processor is Correct)</SelectItem>
+                                  <SelectItem value="ignore">Ignore Variance (No Action)</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase tracking-widest">Forensic Auditor Note</Label>
+                              <Textarea placeholder="Explain the rationale for this manual resolution..." className="min-h-[100px] text-xs" />
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <Button onClick={() => handleResolve(tx.internalId)} className="w-full bg-primary text-white font-black uppercase tracking-widest h-11 text-[10px]">
+                              Commit Resolution
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}

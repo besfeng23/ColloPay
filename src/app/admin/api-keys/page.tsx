@@ -15,8 +15,21 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Plus, Key, Copy, Trash2, Eye, ShieldAlert, Lock, Terminal, RefreshCw, Clock } from 'lucide-react';
+import { Plus, Key, Copy, Trash2, Eye, ShieldAlert, Lock, Terminal, RefreshCw, Clock, ShieldCheck, User } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogFooter, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger 
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export default function APIKeysPage() {
   const [mounted, setMounted] = useState(false);
@@ -40,6 +53,13 @@ export default function APIKeysPage() {
     });
   };
 
+  const handleProvision = () => {
+    toast({
+      title: "Credential Staged",
+      description: "New API key staged for secondary approval.",
+    });
+  };
+
   return (
     <DashboardLayout type="admin" title="Infrastructure Credentials">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
@@ -52,9 +72,81 @@ export default function APIKeysPage() {
             Secrets are hashed with salt. We only store and display fragments for auditing.
           </div>
         </div>
-        <Button className="bg-primary text-white font-black text-[11px] uppercase tracking-widest h-11 px-8 shadow-lg shadow-primary/20">
-          <Plus size={18} className="mr-2" /> Provision Credential
-        </Button>
+        
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button className="bg-primary text-white font-black text-[11px] uppercase tracking-widest h-11 px-8 shadow-lg shadow-primary/20">
+              <Plus size={18} className="mr-2" /> Provision Credential
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[525px]">
+            <DialogHeader>
+              <DialogTitle className="text-lg font-black uppercase tracking-tight">Provision Infrastructure Token</DialogTitle>
+              <DialogDescription className="text-xs font-medium">
+                Identify the institutional owner and technical scope for this authentication credential.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-6 py-4">
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest">Credential Label</Label>
+                <Input placeholder="e.g. GFS-Production-Ledger" className="h-10 text-xs" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest">Institutional Owner</Label>
+                  <Select>
+                    <SelectTrigger className="h-10 text-xs">
+                      <SelectValue placeholder="Select Partner" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {MOCK_PARTNERS.map(p => (
+                        <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest">Environment</Label>
+                  <Select defaultValue="prod">
+                    <SelectTrigger className="h-10 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="prod">Production</SelectItem>
+                      <SelectItem value="sandbox">Sandbox/Testing</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <Label className="text-[10px] font-black uppercase tracking-widest">Authorized Scopes</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox id="scope-read" defaultChecked />
+                    <Label htmlFor="scope-read" className="text-xs font-medium">Ledger.Read</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox id="scope-write" defaultChecked />
+                    <Label htmlFor="scope-write" className="text-xs font-medium">Transaction.Create</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox id="scope-refund" />
+                    <Label htmlFor="scope-refund" className="text-xs font-medium">Transaction.Refund</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox id="scope-webhook" />
+                    <Label htmlFor="scope-webhook" className="text-xs font-medium">Webhook.Config</Label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button onClick={handleProvision} className="w-full bg-primary text-white font-black uppercase tracking-widest h-11 text-[10px]">
+                Stage for Approval
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="grid grid-cols-1 gap-8">
