@@ -150,7 +150,7 @@ export default function ReconciliationPage() {
         <div className="space-y-2">
           <h4 className="text-sm font-black uppercase tracking-widest text-accent">Automated Resolution Engine</h4>
           <p className="text-xs text-slate-400 leading-relaxed max-w-2xl font-medium">
-            The platform will automatically attempt to resolve "Missing Callback" exceptions via direct processor API status queries every 15 minutes. High-value mismatches (> ₱50,000) are locked for mandatory manual review.
+            The platform will automatically attempt to resolve "Missing Callback" exceptions via direct processor API status queries every 15 minutes. High-value mismatches (&gt; ₱50,000) are locked for mandatory manual review.
           </p>
         </div>
         <Button variant="outline" className="border-white/10 text-white hover:bg-white/5 font-black uppercase tracking-widest h-11 px-8 text-[10px] shrink-0">
