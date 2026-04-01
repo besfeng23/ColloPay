@@ -1,4 +1,3 @@
-
 {
   "entities": {
     "Partner": {
@@ -8,21 +7,25 @@
       "properties": {
         "id": { "type": "string" },
         "name": { "type": "string" },
-        "status": { "type": "string", "enum": ["active", "suspended", "onboarding"] },
-        "apiKeyHash": { "type": "string", "description": "Hashed version of the partner's API key." }
+        "status": { "type": "string", "enum": ["ACTIVE", "SUSPENDED", "INACTIVE"] },
+        "apiKeyHash": { "type": "string" },
+        "legalEntityName": { "type": "string" },
+        "settlementAccountId": { "type": "string" }
       },
       "required": ["id", "name", "status"]
     },
     "Merchant": {
       "title": "Merchant",
-      "description": "Business entity processing payments through a partner.",
+      "description": "Business entity processing payments.",
       "type": "object",
       "properties": {
         "id": { "type": "string" },
         "partnerId": { "type": "string" },
         "name": { "type": "string" },
         "industry": { "type": "string" },
-        "status": { "type": "string", "enum": ["active", "under_review", "disabled"] }
+        "status": { "type": "string", "enum": ["ACTIVE", "SUSPENDED", "INACTIVE"] },
+        "externalReference": { "type": "string" },
+        "defaultCurrency": { "type": "string" }
       },
       "required": ["id", "partnerId", "name", "status"]
     },
@@ -32,43 +35,57 @@
       "type": "object",
       "properties": {
         "id": { "type": "string" },
-        "internalId": { "type": "string" },
-        "partnerTransactionId": { "type": "string" },
+        "externalReference": { "type": "string" },
         "processorTransactionId": { "type": "string" },
-        "idempotencyKey": { "type": "string" },
-        "correlationId": { "type": "string" },
-        "amount": { "type": "number" },
+        "processor": { "type": "string" },
+        "amountMinor": { "type": "integer" },
         "currency": { "type": "string" },
+        "netAmountMinor": { "type": "integer" },
         "status": { "type": "string" },
-        "reconStatus": { "type": "string", "enum": ["matched", "mismatch", "pending"] }
+        "reconciliationStatus": { "type": "string" }
       },
-      "required": ["id", "internalId", "amount", "currency", "status"]
+      "required": ["id", "externalReference", "amountMinor", "currency", "status"]
+    },
+    "TransactionTimeline": {
+      "title": "Transaction Timeline",
+      "description": "Immutable history of status changes for a transaction.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "transactionId": { "type": "string" },
+        "from": { "type": "string" },
+        "to": { "type": "string" },
+        "reason": { "type": "string" },
+        "actor": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
     },
     "FeeRule": {
       "title": "Fee Rule",
-      "description": "Configuration for platform and partner revenue shares.",
+      "description": "Pricing configuration.",
       "type": "object",
       "properties": {
         "id": { "type": "string" },
         "partnerId": { "type": "string" },
-        "merchantId": { "type": "string", "description": "Optional specific merchant override." },
-        "fixedFee": { "type": "number", "description": "Fixed amount in cents." },
-        "percentageFee": { "type": "number", "description": "Percentage basis points (e.g. 290 for 2.9%)." },
-        "effectiveFrom": { "type": "string", "format": "date-time" },
-        "effectiveTo": { "type": "string", "format": "date-time" }
+        "merchantId": { "type": "string" },
+        "feeType": { "type": "string", "enum": ["PERCENTAGE_BPS", "FLAT", "HYBRID"] },
+        "basisPoints": { "type": "integer" },
+        "flatAmountMinor": { "type": "integer" },
+        "effectiveFrom": { "type": "string", "format": "date-time" }
       }
     },
-    "AuditLog": {
-      "title": "Audit Log",
-      "description": "Immutable record of sensitive system changes.",
+    "WebhookEvent": {
+      "title": "Webhook Event",
+      "description": "Log of network events from processors.",
       "type": "object",
       "properties": {
         "id": { "type": "string" },
-        "userId": { "type": "string" },
-        "action": { "type": "string" },
-        "previousValue": { "type": "object" },
-        "newValue": { "type": "object" },
-        "timestamp": { "type": "string", "format": "date-time" }
+        "processor": { "type": "string" },
+        "eventId": { "type": "string" },
+        "status": { "type": "string" },
+        "correlationStatus": { "type": "string" },
+        "receivedAt": { "type": "string", "format": "date-time" },
+        "payload": { "type": "object" }
       }
     }
   },
@@ -78,27 +95,38 @@
   "firestore": {
     "/partners/{partnerId}": {
       "schema": "#/backend/entities/Partner",
-      "description": "Top-level partners."
+      "description": "Enterprise partners."
     },
     "/merchants/{merchantId}": {
       "schema": "#/backend/entities/Merchant",
-      "description": "Business entities."
+      "description": "Business merchants."
     },
     "/transactions/{transactionId}": {
       "schema": "#/backend/entities/Transaction",
-      "description": "Canonical transaction ledger."
+      "description": "Canonical ledger."
     },
     "/transactions/{transactionId}/timeline/{eventId}": {
-      "schema": { "type": "object", "properties": { "status": { "type": "string" }, "timestamp": { "type": "string" }, "reason": { "type": "string" } } },
-      "description": "Immutable history of status changes."
+      "schema": "#/backend/entities/TransactionTimeline",
+      "description": "Status transition history."
     },
     "/feeRules/{ruleId}": {
       "schema": "#/backend/entities/FeeRule",
-      "description": "Pricing engine configurations."
+      "description": "Pricing configurations."
     },
-    "/auditLogs/{logId}": {
-      "schema": "#/backend/entities/AuditLog",
-      "description": "System audit trail."
+    "/webhookEvents/{eventId}": {
+      "schema": "#/backend/entities/WebhookEvent",
+      "description": "Network ingestion logs."
+    },
+    "/idempotencyKeys/{scopedKey}": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "requestHash": { "type": "string" },
+          "responseSnapshot": { "type": "string" },
+          "createdAt": { "type": "string" }
+        }
+      },
+      "description": "Distributed locking for duplicate request protection."
     }
   }
 }
