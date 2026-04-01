@@ -8,9 +8,31 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter }
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Sparkles, Send, Loader2, FileText, BarChart3, PieChart, Activity, Download, ShieldCheck, ChevronRight, Search } from 'lucide-react';
+import { Sparkles, Send, Loader2, FileText, BarChart3, PieChart, Activity, Download, ShieldCheck, ChevronRight, Search, TrendingUp, AlertTriangle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
+import { 
+  ChartContainer, 
+  ChartTooltip, 
+  ChartTooltipContent,
+  type ChartConfig
+} from "@/components/ui/chart";
+import { Area, AreaChart, XAxis, YAxis, CartesianGrid } from "recharts";
+
+const chartData = [
+  { day: "Mon", volume: 4200000 },
+  { day: "Tue", volume: 3100000 },
+  { day: "Wed", volume: 8900000 },
+  { day: "Thu", volume: 12400000 },
+  { day: "Fri", volume: 15800000 },
+];
+
+const chartConfig = {
+  volume: {
+    label: "Pattern Analysis",
+    color: "hsl(var(--accent))",
+  },
+} satisfies ChartConfig;
 
 export default function ReportsPage() {
   const [query, setQuery] = useState('');
@@ -30,8 +52,8 @@ export default function ReportsPage() {
       const result = await generateAdminCustomReport({ naturalLanguageQuery: query });
       setReport(result);
       toast({
-        title: "Report Strategy Architected",
-        description: `Successfully interpreted ${result.reportType} request.`,
+        title: "Intelligence Model Activated",
+        description: `Successfully architected forensic view for ${result.reportType}.`,
       });
     } catch (error) {
       console.error("Failed to generate report:", error);
@@ -55,7 +77,6 @@ export default function ReportsPage() {
   return (
     <DashboardLayout type="admin" title="Intelligent Reports">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Interface */}
         <div className="lg:col-span-2 space-y-6">
           <Card className="border-none shadow-sm bg-white overflow-hidden">
             <div className="h-1 bg-accent"></div>
@@ -65,21 +86,21 @@ export default function ReportsPage() {
                 <CardTitle className="text-lg font-black tracking-tight">AI Report Architect</CardTitle>
               </div>
               <CardDescription className="text-xs font-medium">
-                Describe the forensic data you need in natural language. We'll interpret your intent and prepare the extraction parameters.
+                Describe the forensic data you need in natural language. The model will analyze transaction patterns and extraction parameters.
               </CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
               <div className="space-y-4">
                 <Textarea 
-                  placeholder='e.g., "Show me all failed transactions for ColloPay from last month" or "What was the total volume for Partner A in Q3?"'
+                  placeholder='e.g., "Analyze anomaly patterns for strat-retail over the last 30 days" or "Forecast settlement volume for Q4"'
                   className="min-h-[140px] bg-slate-50/50 border-slate-200 focus-visible:ring-accent resize-none p-4 text-sm font-medium leading-relaxed"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                 />
                 <div className="flex justify-between items-center">
                   <div className="flex space-x-2">
-                    <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest bg-white">GPT-4o Optimized</Badge>
-                    <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest bg-white">Forensic Context</Badge>
+                    <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest bg-white">GPT-4o Forensics</Badge>
+                    <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest bg-white">Pattern Recognition</Badge>
                   </div>
                   <Button 
                     onClick={handleGenerate} 
@@ -95,70 +116,86 @@ export default function ReportsPage() {
           </Card>
 
           {report && (
-            <Card className="border-none shadow-sm bg-white animate-in fade-in slide-in-from-bottom-4 overflow-hidden">
-              <CardHeader className="border-b border-slate-100 bg-slate-50/30 p-6">
-                <div className="flex items-center justify-between">
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <Card className="border-none shadow-sm bg-white overflow-hidden">
+                <CardHeader className="border-b border-slate-100 bg-slate-50/30 p-6 flex flex-row items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="p-2.5 bg-primary/10 rounded-xl text-primary">
                       <FileText size={20} />
                     </div>
                     <div>
-                      <CardTitle className="text-base font-black tracking-tight">Report Strategy Identified</CardTitle>
-                      <CardDescription className="text-xs">Generated forensic parameters for extraction</CardDescription>
+                      <CardTitle className="text-base font-black tracking-tight">Intelligence Output</CardTitle>
+                      <CardDescription className="text-xs">Identified parameters and pattern correlations</CardDescription>
                     </div>
                   </div>
                   <Badge className="bg-primary text-white font-black tracking-widest uppercase text-[10px] h-6 px-3">
                     {report.reportType}
                   </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-8 space-y-8 p-6">
-                <div className="bg-slate-50/50 rounded-2xl p-6 border border-slate-100">
-                  <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Executive Summary</h4>
-                  <p className="text-sm font-medium text-slate-700 leading-relaxed">
-                    {report.summaryText}
-                  </p>
-                </div>
+                </CardHeader>
+                <CardContent className="p-6 space-y-8">
+                  <div className="bg-slate-50/50 rounded-2xl p-6 border border-slate-100">
+                    <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Model Executive Summary</h4>
+                    <p className="text-sm font-medium text-slate-700 leading-relaxed">
+                      {report.summaryText}
+                    </p>
+                  </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-4">
-                    <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Extracted Trace Parameters</h4>
-                    <div className="bg-[#0F172A] rounded-xl p-5 font-mono text-[11px] space-y-3 shadow-inner">
-                      {Object.entries(report.queryParameters).map(([key, value]) => (
-                        <div key={key} className="flex justify-between border-b border-white/5 pb-2 last:border-0 last:pb-0">
-                          <span className="text-accent font-bold">{key}</span>
-                          <span className="text-slate-400">{String(value)}</span>
-                        </div>
-                      ))}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-4">
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Extracted Schema</h4>
+                      <div className="bg-[#0F172A] rounded-xl p-5 font-mono text-[11px] space-y-3 shadow-inner">
+                        {Object.entries(report.queryParameters).map(([key, value]) => (
+                          <div key={key} className="flex justify-between border-b border-white/5 pb-2 last:border-0 last:pb-0">
+                            <span className="text-accent font-bold">{key}</span>
+                            <span className="text-slate-400">{String(value)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Pattern Visualization</h4>
+                      <div className="h-[140px] w-full bg-slate-50 rounded-xl p-2 border border-slate-100">
+                        {mounted && (
+                          <ChartContainer config={chartConfig} className="h-full w-full">
+                            <AreaChart data={chartData}>
+                              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                              <ChartTooltip content={<ChartTooltipContent />} />
+                              <Area 
+                                type="monotone" 
+                                dataKey="volume" 
+                                stroke="hsl(var(--accent))" 
+                                fill="hsl(var(--accent))" 
+                                fillOpacity={0.1}
+                                strokeWidth={2}
+                              />
+                            </AreaChart>
+                          </ChartContainer>
+                        )}
+                      </div>
+                      <div className="flex items-center text-[10px] font-bold text-amber-600 bg-amber-50 px-3 py-2 rounded-lg border border-amber-100">
+                        <AlertTriangle size={14} className="mr-2" />
+                        Minor variance detected in period-over-period drift.
+                      </div>
                     </div>
                   </div>
-                  <div className="flex flex-col justify-center space-y-3">
-                    <Button variant="outline" className="w-full justify-between h-12 text-[10px] font-black uppercase tracking-widest border-slate-200">
-                      <div className="flex items-center">
-                        <BarChart3 className="mr-3 text-accent" size={18} />
-                        View Visualization
-                      </div>
-                      <ChevronRight size={14} className="text-slate-300" />
-                    </Button>
-                    <Button onClick={handleExport} className="w-full justify-between h-12 bg-primary text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20">
-                      <div className="flex items-center">
-                        <Download className="mr-3" size={18} />
-                        Export Forensic Ledger
-                      </div>
-                      <ChevronRight size={14} className="opacity-50" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+                <CardFooter className="bg-slate-50/30 p-4 border-t flex justify-end space-x-3">
+                  <Button variant="outline" className="text-[10px] font-black uppercase tracking-widest border-slate-200">
+                    Modify Request
+                  </Button>
+                  <Button onClick={handleExport} className="bg-primary text-white text-[10px] font-black uppercase tracking-widest">
+                    Export Full Forensic CSV
+                  </Button>
+                </CardFooter>
+              </Card>
+            </div>
           )}
         </div>
 
-        {/* Sidebar / Pre-built Reports */}
         <div className="space-y-6">
           <Card className="border-none shadow-sm bg-white overflow-hidden">
             <CardHeader className="border-b border-slate-100 bg-slate-50/30">
-              <CardTitle className="text-[11px] font-black uppercase tracking-widest text-slate-400">Standard Forensic Ledgers</CardTitle>
+              <CardTitle className="text-[11px] font-black uppercase tracking-widest text-slate-400">Intelligence Presets</CardTitle>
             </CardHeader>
             <CardContent className="p-2">
               {[
@@ -180,13 +217,13 @@ export default function ReportsPage() {
             </CardContent>
           </Card>
 
-          <div className="bg-[#0F172A] rounded-2xl p-6 text-white space-y-4 shadow-xl">
+          <div className="bg-[#0F172A] rounded-2xl p-6 text-white space-y-4 shadow-xl border border-white/5">
             <div className="flex items-center space-x-3 text-accent">
               <Search size={20} />
-              <h4 className="text-sm font-black uppercase tracking-widest">Global Filter</h4>
+              <h4 className="text-sm font-black uppercase tracking-widest">Global Forensic Filter</h4>
             </div>
             <p className="text-[11px] text-slate-400 leading-relaxed font-medium">
-              Access the cross-institutional search engine to query transactions across all partners and environments using Trace IDs or Metadata.
+              Query the absolute ledger across all institutional silos using identifiers, masked PII, or raw metadata attributes.
             </p>
             <Button variant="outline" className="w-full border-white/10 text-white hover:bg-white/5 font-black uppercase tracking-widest h-10 text-[9px]">
               Launch Trace Explorer

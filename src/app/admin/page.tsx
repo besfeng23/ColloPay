@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -17,7 +18,8 @@ import {
   Webhook,
   BarChart3,
   TrendingUp,
-  Fingerprint
+  Fingerprint,
+  UserPlus
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { 
@@ -66,7 +68,7 @@ export default function AdminDashboard() {
   return (
     <DashboardLayout type="admin" title="Platform Intelligence Overview">
       {/* Critical Status Bar */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-2">
         <div className="flex items-center justify-between bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 shadow-sm hover:bg-amber-100/50 transition-colors cursor-pointer group">
           <div className="flex items-center space-x-3">
             <div className="bg-amber-100 p-2 rounded-lg text-amber-600">
@@ -74,10 +76,25 @@ export default function AdminDashboard() {
             </div>
             <div>
               <p className="text-[11px] font-black text-amber-800 uppercase tracking-widest">Reconciliation</p>
-              <p className="text-xs font-bold text-amber-600">8 unresolved exceptions</p>
+              <p className="text-xs font-bold text-amber-600">8 unresolved</p>
             </div>
           </div>
           <Link href="/admin/reconciliation" className="text-amber-800 opacity-0 group-hover:opacity-100 transition-opacity">
+            <ArrowRight size={16} />
+          </Link>
+        </div>
+
+        <div className="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 shadow-sm hover:bg-blue-100/50 transition-colors cursor-pointer group">
+          <div className="flex items-center space-x-3">
+            <div className="bg-blue-100 p-2 rounded-lg text-blue-600">
+              <UserPlus size={18} />
+            </div>
+            <div>
+              <p className="text-[11px] font-black text-blue-800 uppercase tracking-widest">Onboarding</p>
+              <p className="text-xs font-bold text-blue-600">4 apps pending</p>
+            </div>
+          </div>
+          <Link href="/admin/onboarding" className="text-blue-800 opacity-0 group-hover:opacity-100 transition-opacity">
             <ArrowRight size={16} />
           </Link>
         </div>
@@ -88,24 +105,24 @@ export default function AdminDashboard() {
               <Activity size={18} />
             </div>
             <div>
-              <p className="text-[11px] font-black text-emerald-800 uppercase tracking-widest">Processor Health</p>
-              <p className="text-xs font-bold text-emerald-600">All systems operational</p>
+              <p className="text-[11px] font-black text-emerald-800 uppercase tracking-widest">System Health</p>
+              <p className="text-xs font-bold text-emerald-600">All systems online</p>
             </div>
           </div>
           <Badge className="bg-emerald-500 text-white border-none text-[9px] font-black">99.98%</Badge>
         </div>
 
-        <div className="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 shadow-sm hover:bg-blue-100/50 transition-colors cursor-pointer group">
+        <div className="flex items-center justify-between bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 shadow-sm hover:bg-slate-100/50 transition-colors cursor-pointer group">
           <div className="flex items-center space-x-3">
-            <div className="bg-blue-100 p-2 rounded-lg text-blue-600">
+            <div className="bg-slate-200 p-2 rounded-lg text-slate-600">
               <Scale size={18} />
             </div>
             <div>
-              <p className="text-[11px] font-black text-blue-800 uppercase tracking-widest">Settlement</p>
-              <p className="text-xs font-bold text-blue-600">2 batches awaiting approval</p>
+              <p className="text-[11px] font-black text-slate-800 uppercase tracking-widest">Settlement</p>
+              <p className="text-xs font-bold text-slate-600">2 awaiting approve</p>
             </div>
           </div>
-          <Link href="/admin/settlements" className="text-blue-800 opacity-0 group-hover:opacity-100 transition-opacity">
+          <Link href="/admin/settlements" className="text-slate-800 opacity-0 group-hover:opacity-100 transition-opacity">
             <ArrowRight size={16} />
           </Link>
         </div>
@@ -135,10 +152,11 @@ export default function AdminDashboard() {
           className="border-rose-100"
         />
         <StatCard 
-          title="Onboarding Queue" 
-          value="4" 
-          description="New partner applications"
-          icon={Users}
+          title="Success Rate" 
+          value="99.92%" 
+          description="Authorization baseline"
+          icon={ShieldCheck}
+          trend={{ value: 0.04, isUp: true }}
         />
       </div>
 

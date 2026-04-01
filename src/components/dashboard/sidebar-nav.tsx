@@ -16,7 +16,8 @@ import {
   ShieldCheck,
   Scale,
   Key,
-  Zap
+  Zap,
+  UserPlus
 } from 'lucide-react';
 
 interface SidebarNavProps {
@@ -28,6 +29,7 @@ export function SidebarNav({ type }: SidebarNavProps) {
 
   const adminLinks = [
     { name: 'Overview', href: '/admin', icon: LayoutDashboard },
+    { name: 'Onboarding Queue', href: '/admin/onboarding', icon: UserPlus },
     { name: 'Partners', href: '/admin/partners', icon: Users },
     { name: 'Merchants', href: '/admin/merchants', icon: Store },
     { name: 'Global Ledger', href: '/admin/transactions', icon: CreditCard },

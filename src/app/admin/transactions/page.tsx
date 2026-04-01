@@ -1,8 +1,9 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/dashboard/dashboard-layout';
-import { MOCK_TRANSACTIONS } from '@/lib/mock-data';
+import { MOCK_TRANSACTIONS, MOCK_MERCHANTS } from '@/lib/mock-data';
 import { 
   Table, 
   TableBody, 
@@ -20,7 +21,14 @@ import {
   Download, 
   MoreVertical,
   ArrowUpDown,
-  AlertCircle
+  AlertCircle,
+  Eye,
+  ArrowRight,
+  Clock,
+  Split,
+  ShieldCheck,
+  ChevronRight,
+  CreditCard
 } from 'lucide-react';
 import { 
   DropdownMenu, 
@@ -28,11 +36,21 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
+import { 
+  Sheet, 
+  SheetContent, 
+  SheetHeader, 
+  SheetTitle,
+  SheetDescription,
+  SheetFooter
+} from '@/components/ui/sheet';
 import Link from 'next/link';
+import { Separator } from '@/components/ui/separator';
 
 export default function TransactionsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [mounted, setMounted] = useState(false);
+  const [selectedTxId, setSelectedTxId] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -44,10 +62,12 @@ export default function TransactionsPage() {
     tx.processorTransactionId?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const selectedTx = MOCK_TRANSACTIONS.find(t => t.id === selectedTxId);
+  const merchant = selectedTx ? MOCK_MERCHANTS.find(m => m.id === selectedTx.merchantId) : null;
+
   return (
     <DashboardLayout type="admin" title="Global Transaction Ledger">
       <div className="space-y-4">
-        {/* Advanced Filters Bar */}
         <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
@@ -68,7 +88,6 @@ export default function TransactionsPage() {
           </div>
         </div>
 
-        {/* Transactions Table */}
         <div className="bg-white rounded-lg shadow-sm border-none overflow-hidden">
           <div className="overflow-x-auto">
             <div className="min-w-[1000px]">
@@ -90,7 +109,11 @@ export default function TransactionsPage() {
                 </TableHeader>
                 <TableBody>
                   {filteredTransactions.map((tx) => (
-                    <TableRow key={tx.id} className="group border-b border-muted/20 hover:bg-muted/5 transition-colors">
+                    <TableRow 
+                      key={tx.id} 
+                      className="group border-b border-muted/20 hover:bg-muted/5 transition-colors cursor-pointer"
+                      onClick={() => setSelectedTxId(tx.id)}
+                    >
                       <TableCell className="text-center">
                         <div className="flex justify-center">
                           {tx.reconStatus === 'matched' ? (
@@ -129,7 +152,7 @@ export default function TransactionsPage() {
                           {tx.status}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
@@ -153,6 +176,110 @@ export default function TransactionsPage() {
           </div>
         </div>
       </div>
+
+      {/* Quick View Drawer */}
+      <Sheet open={!!selectedTxId} onOpenChange={(open) => !open && setSelectedTxId(null)}>
+        <SheetContent className="w-full sm:max-w-xl p-0 overflow-y-auto">
+          {selectedTx && (
+            <div className="flex flex-col h-full">
+              <SheetHeader className="p-8 bg-slate-50 border-b">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <SheetTitle className="text-xl font-black font-mono text-slate-900">{selectedTx.internalId}</SheetTitle>
+                    <SheetDescription className="text-xs font-medium uppercase tracking-widest mt-1">
+                      Partner Ref: {selectedTx.partnerTransactionId}
+                    </SheetDescription>
+                  </div>
+                  <Badge variant={selectedTx.status === 'succeeded' ? 'default' : 'destructive'} className="uppercase text-[10px] font-black px-3">
+                    {selectedTx.status}
+                  </Badge>
+                </div>
+              </SheetHeader>
+
+              <div className="p-8 space-y-10">
+                {/* Executive Summary */}
+                <div className="grid grid-cols-2 gap-8">
+                  <div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Gross Inbound</p>
+                    <p className="text-xl font-black text-slate-900">₱{(selectedTx.amount / 100).toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Settlement Rail</p>
+                    <p className="text-sm font-bold text-slate-700 flex items-center">
+                      <CreditCard size={14} className="mr-2 text-primary" /> PESONet Direct
+                    </p>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Remittance Detail */}
+                <div className="space-y-4">
+                  <div className="flex items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
+                    <Split size={14} className="mr-2" /> Remittance Distribution
+                  </div>
+                  <div className="bg-[#0F172A] rounded-xl p-5 space-y-3 font-mono text-[11px]">
+                    <div className="flex justify-between border-b border-white/5 pb-2">
+                      <span className="text-slate-400">Merchant Net (90%)</span>
+                      <span className="text-emerald-400 font-bold">₱{(selectedTx.computedFees.merchantNet / 100).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between border-b border-white/5 pb-2">
+                      <span className="text-slate-400">Platform Fee (10%)</span>
+                      <span className="text-rose-400">₱{((selectedTx.amount * 0.1) / 100).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-white/40 pt-1">
+                      <span>Forensic Check</span>
+                      <span className="text-emerald-500">VERIFIED</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Timeline Snippet */}
+                <div className="space-y-4">
+                  <div className="flex items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
+                    <Clock size={14} className="mr-2" /> Recent Lifecycle Events
+                  </div>
+                  <div className="space-y-4 relative before:absolute before:inset-0 before:ml-2 before:h-full before:w-0.5 before:bg-slate-100">
+                    {selectedTx.timeline?.slice(0, 2).map((event) => (
+                      <div key={event.id} className="relative pl-8">
+                        <div className="absolute left-0 top-1 w-4 h-4 rounded-full bg-white border-2 border-slate-200 shadow-sm" />
+                        <p className="text-[10px] font-black uppercase text-slate-700">{event.status}</p>
+                        <p className="text-xs text-slate-500 font-medium mt-0.5">{event.note}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Entity Intel */}
+                <div className="p-5 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-primary/10 rounded-lg text-primary">
+                      <ShieldCheck size={16} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase">Merchant of Record</p>
+                      <p className="text-xs font-bold text-slate-900">{merchant?.name || `M-${selectedTx.merchantId}`}</p>
+                    </div>
+                  </div>
+                  <Link href={`/admin/merchants/${selectedTx.merchantId}`}>
+                    <Button variant="ghost" size="sm" className="text-primary p-0 h-auto hover:bg-transparent">
+                      <ChevronRight size={18} />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+
+              <SheetFooter className="p-8 border-t mt-auto">
+                <Link href={`/admin/transactions/${selectedTx.id}`} className="w-full">
+                  <Button className="w-full bg-primary text-white font-black uppercase tracking-widest h-12 shadow-lg shadow-primary/20">
+                    View Full Forensic Trace <ArrowRight size={16} className="ml-2" />
+                  </Button>
+                </Link>
+              </SheetFooter>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
     </DashboardLayout>
   );
 }
